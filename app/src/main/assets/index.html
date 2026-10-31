@@ -1,0 +1,1604 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>किसान फार्म — Farm Manager</title>
+<style>
+:root{
+  --primary:#227745; --primary-d:#1a5c35; --bg:#f3f1e8; --card:#ffffff; --glass:rgba(255,255,255,.84);
+  --text:#22302a; --muted:#6e7670; --border:#e4e0d2; --danger:#b4530a;
+  --good:#227745; --motif:rgba(34,119,69,.08); --htext:#ffffff; --chip:#e6f1e8;
+}
+[data-theme="raat"]{ --glass:rgba(30,42,36,.82); }
+[data-theme="mitti"]{ --primary:#8a5a2b; --primary-d:#6e4620; --bg:#f6efe4; --motif:rgba(138,90,43,.09); --chip:#f0e4d4; }
+[data-theme="gehu"]{ --primary:#a9791a; --primary-d:#8a6210; --bg:#faf5e8; --motif:rgba(169,121,26,.10); --chip:#f3e9cf; }
+[data-theme="aasman"]{ --primary:#1f6f9e; --primary-d:#175778; --bg:#eef3f7; --motif:rgba(31,111,158,.09); --chip:#dcebf3; }
+[data-theme="raat"]{ --primary:#3fa368; --primary-d:#318253; --bg:#15201b; --card:#1e2a24; --text:#e8efe9;
+  --muted:#9fb0a6; --border:#2c3a32; --motif:rgba(255,255,255,.055); --htext:#ffffff; --chip:#28362e; }
+[data-theme="fasal"]{ --primary:#c76b1f; --primary-d:#a4551a; --bg:#fbf1e4; --motif:rgba(199,107,31,.10); --chip:#f6e3cd; }
+[data-theme="nadi"]{ --primary:#13857f; --primary-d:#0e6a65; --bg:#e9f5f3; --motif:rgba(19,133,127,.10); --chip:#d2ece9; }
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'Noto Sans Devanagari',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);-webkit-tap-highlight-color:transparent}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;background-size:cover;background-position:center}
+#bg svg{width:100%;height:100%}
+#bg::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent,transparent 80%,var(--bg))}
+#bg.custom::after{background:linear-gradient(rgba(0,0,0,.02),transparent 60%,rgba(0,0,0,.06))}
+#wrap{position:relative;z-index:1;max-width:460px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+header{background:var(--primary);color:var(--htext);padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
+header .ttl{font-size:17px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header button{background:rgba(255,255,255,.16);color:var(--htext);border:none;border-radius:10px;padding:7px 10px;font:inherit;font-size:13px;cursor:pointer}
+.iconbtn{width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;padding:0!important}
+#app{flex:1;padding:14px 16px 90px}
+.card{background:var(--glass);-webkit-backdrop-filter:saturate(1.15) blur(9px);backdrop-filter:saturate(1.15) blur(9px);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px}
+.row{display:flex;gap:10px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+label{display:block;font-size:12.5px;color:var(--muted);margin:10px 0 4px;font-weight:600}
+input,select,textarea{width:100%;font:inherit;font-size:15px;padding:11px 12px;border:1px solid var(--border);border-radius:11px;background:var(--card);color:var(--text)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--primary);outline-offset:-1px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:var(--primary);color:#fff;border:none;border-radius:12px;padding:13px 16px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;width:100%}
+.btn.sec{background:var(--card);color:var(--primary);border:1.5px solid var(--primary)}
+.btn.sm{width:auto;padding:8px 12px;font-size:13px;border-radius:10px}
+.btn.danger{background:var(--danger)}
+.tilegrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tile{background:var(--glass);-webkit-backdrop-filter:saturate(1.15) blur(9px);backdrop-filter:saturate(1.15) blur(9px);border:1px solid var(--border);border-radius:16px;padding:15px;text-align:left;display:flex;flex-direction:column;gap:9px;cursor:pointer;font:inherit;color:var(--text)}
+.tile .ic{width:46px;height:46px;border-radius:14px;background:var(--chip);color:var(--primary);display:inline-flex;align-items:center;justify-content:center}
+.tile .nm{font-size:15.5px;font-weight:700}
+.tile .sub{font-size:11.5px;color:var(--muted);line-height:1.35}
+.sumg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.sumc{background:var(--glass);-webkit-backdrop-filter:saturate(1.15) blur(9px);backdrop-filter:saturate(1.15) blur(9px);border:1px solid var(--border);border-radius:14px;padding:12px}
+.sumc .k{font-size:12px;color:var(--muted)}
+.sumc .v{font-size:19px;font-weight:700;margin-top:3px}
+.banner{display:flex;align-items:center;gap:10px;background:#fff3dc;border:1px solid #f1d79f;border-radius:14px;padding:10px 12px;margin-bottom:12px;color:#6b4700}
+[data-theme="raat"] .banner{background:#3a3016;border-color:#5a4a1e;color:#f0dca0}
+.banner .t1{font-size:13px;font-weight:700}.banner .t2{font-size:11px;opacity:.85}
+.list .it{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.list .it:last-child{border-bottom:none}
+.it .main{flex:1;min-width:0}
+.it .l1{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .l2{font-size:12px;color:var(--muted)}
+.it .amt{font-weight:700;font-size:15px;white-space:nowrap}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--primary);font-weight:600}
+.pos{color:var(--good)}.neg{color:var(--danger)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:600;font-size:12px}
+td.r,th.r{text-align:right}
+.muted{color:var(--muted)}
+.h2{font-size:15px;font-weight:700;margin:4px 0 10px}
+.err{background:#fde8d8;color:#8a3a06;border:1px solid #f0c3a0;border-radius:11px;padding:10px 12px;font-size:13px;margin-bottom:10px}
+[data-theme="raat"] .err{background:#3a2316;color:#f0b48a;border-color:#5a3520}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#263029;color:#fff;padding:11px 18px;border-radius:999px;font-size:14px;z-index:50;opacity:0;transition:opacity .2s;max-width:90%}
+.toast.show{opacity:.96}
+.bottomnav{position:fixed;bottom:0;left:0;right:0;max-width:460px;margin:0 auto;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:6}
+.bottomnav button{flex:1;background:none;border:none;color:var(--muted);font:inherit;font-size:11px;padding:8px 0 10px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.bottomnav button.on{color:var(--primary);font-weight:700}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;text-align:center;gap:10px;padding:20px}
+.logo{width:76px;height:76px;border-radius:22px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.langsel{display:flex;gap:12px;width:100%;max-width:300px}
+.langsel button{flex:1;padding:16px;border-radius:14px;border:2px solid var(--primary);background:var(--card);color:var(--primary);font:inherit;font-size:17px;font-weight:700;cursor:pointer}
+.plotrow{display:grid;grid-template-columns:1fr 90px 70px 34px;gap:7px;align-items:center;margin-bottom:7px}
+.plotrow input,.plotrow select{padding:9px}
+small.hint{display:block;color:var(--muted);font-size:11.5px;margin-top:4px}
+.seg{display:flex;border:1px solid var(--border);border-radius:11px;overflow:hidden}
+.seg button{flex:1;background:var(--card);border:none;padding:11px;font:inherit;font-size:14px;color:var(--text);cursor:pointer}
+.seg button.on{background:var(--primary);color:#fff;font-weight:700}
+.btnrow{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.it.locked{opacity:.6}
+.it.locked .main{filter:blur(1.1px)}
+.lockpill{display:inline-block;font-size:10px;padding:2px 7px;border-radius:999px;background:#eadfc7;color:#7a5a16;font-weight:600;margin-left:4px}
+[data-theme="raat"] .lockpill{background:#3a3016;color:#e0c488}
+.det{margin-top:8px;border-top:1px dashed var(--border);padding-top:8px}
+.det .dit{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.det .dit:last-child{border-bottom:none}
+.det .dit .dm{flex:1;min-width:0}
+.det .dit .d1{font-weight:600}
+.det .dit .d2{font-size:11.5px;color:var(--muted)}
+.det .dit .da{font-weight:700;white-space:nowrap}
+.exphead{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.exphead .cv{display:inline-flex;align-items:center;gap:6px}
+.caret{transition:transform .15s}.caret.open{transform:rotate(90deg)}
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:9px;margin-top:6px}
+.sw{border:2px solid var(--border);border-radius:12px;padding:8px;cursor:pointer;text-align:center;font-size:11.5px;font-weight:600;color:var(--text);background:var(--card)}
+.sw.on{border-color:var(--primary)}
+.sw .dot{height:30px;border-radius:8px;margin-bottom:6px;background:linear-gradient(135deg,var(--sc1),var(--sc2))}
+.bgopt{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:6px}
+.bgo{border:2px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;background:var(--card)}
+.bgo.on{border-color:var(--primary)}
+.bgo .prev{height:60px;background-size:cover;background-position:center;display:flex;align-items:flex-end}
+.bgo .lab{font-size:11.5px;font-weight:600;padding:5px 7px}
+</style>
+</head>
+<body>
+<div id="bg" aria-hidden="true"></div>
+<div id="wrap">
+  <div id="app"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   FARM MANAGEMENT APP — ENGINE (pure logic, no DOM)
+   Single source of truth = masters + txns. Everything derived.
+   Works in Node (module.exports) and browser (window.FarmEngine).
+   ============================================================ */
+(function (root) {
+  'use strict';
+
+  function r2(x) { return Math.round((Number(x) || 0) * 100) / 100; }
+  function num(x) { var n = Number(x); return isFinite(n) ? n : 0; }
+  function uid(p) { return (p || 'id') + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8); }
+
+  /* ---- store shape ----
+  firm = {
+    id, name, city, farmer, mobile,
+    plots:   [{id, name, unit, size}],
+    openingCash, openingBank,            // numbers
+    parties: [{id, name, contact, city, type:'vendor'|'labour',
+               openAmt, openDir:'payable'|'receivable'}],  // payable = we owe; receivable = they owe
+    crops:   [{id, name, unit}],
+    ledgers: [{id, name, type:'exp'|'income'}],
+    accounts:[{id, name, type:'cash'|'bank', opening}],
+    sowings: [{id, plotId, cropId, area, startDate, endDate|null}],
+    txns:    [ ... see below ... ]
+  }
+
+  txn types & fields (amounts positive numbers, dates 'YYYY-MM-DD'):
+   payment  {type,date,fromAccId, toKind:'party'|'ledger', partyId?, ledgerId?, amount, sowingId?('other'|id), remark}
+   receipt  {type,date,toAccId,   fromKind:'party'|'ledger', partyId?, ledgerId?, amount, sowingId?, remark}
+   purchase {type,date, payKind:'account'|'vendor', accId?, vendorId?, ledgerId, qty?,rate?, amount, sowingId, remark}
+   sale     {type,date, recvKind:'account'|'vendor', accId?, vendorId?, ledgerId, lotId?, sowingId, whole?, qty?,rate?, amount, remark}
+   labour   {type,date, labourId, ledgerId, mode:'fixed'|'contract', qty?,unit?,rate?, amount, sowingId, remark}  // creates payable to labour
+   cropend  {type,date, sowingId, qty, rate, amount, lotName, remark}  // creates a lot; ends sowing
+   leftover {type,date, sowingId, lotId, amount, reason, remark}        // seed/home/spoil -> income + closes lot
+   transfer {type,date, fromAccId, toAccId, amount, remark}
+  'other' sowingId means untagged (general).
+  */
+
+  // ---------- lookups ----------
+  function byId(list, id) { for (var i = 0; i < (list || []).length; i++) if (list[i].id === id) return list[i]; return null; }
+  function plot(f, id) { return byId(f.plots, id); }
+  function crop(f, id) { return byId(f.crops, id); }
+  function party(f, id) { return byId(f.parties, id); }
+  function ledger(f, id) { return byId(f.ledgers, id); }
+  function account(f, id) { return byId(f.accounts, id); }
+  function sowing(f, id) { return byId(f.sowings, id); }
+
+  function sowingLabel(f, s) {
+    if (!s) return '';
+    var p = plot(f, s.plotId), c = crop(f, s.cropId);
+    // sequence: among sowings of same plot+crop ordered by startDate
+    var same = f.sowings.filter(function (x) { return x.plotId === s.plotId && x.cropId === s.cropId; })
+      .sort(function (a, b) { return (a.startDate || '').localeCompare(b.startDate || '') || a.id.localeCompare(b.id); });
+    var seq = same.indexOf(s) + 1;
+    var tag = same.length > 1 ? (' #' + seq) : '';
+    return (c ? c.name : '?') + tag + ' — ' + (p ? p.name : '?');
+  }
+
+  // ---------- accounts (cash/bank) ----------
+  function accountBalance(f, accId, upto) {
+    var a = account(f, accId); if (!a) return 0;
+    var bal = num(a.opening);
+    f.txns.forEach(function (t) {
+      if (upto && t.date > upto) return;
+      switch (t.type) {
+        case 'receipt': if (t.toAccId === accId) bal += num(t.amount); break;
+        case 'sale': if (t.recvKind === 'account' && t.accId === accId) bal += num(t.amount); break;
+        case 'payment': if (t.fromAccId === accId) bal -= num(t.amount); break;
+        case 'purchase': if (t.payKind === 'account' && t.accId === accId) bal -= num(t.amount); break;
+        case 'transfer':
+          if (t.fromAccId === accId) bal -= num(t.amount);
+          if (t.toAccId === accId) bal += num(t.amount);
+          break;
+      }
+    });
+    return r2(bal);
+  }
+  function cashTotal(f, upto) { var s = 0; f.accounts.forEach(function (a) { if (a.type === 'cash') s += accountBalance(f, a.id, upto); }); return r2(s); }
+  function bankTotal(f, upto) { var s = 0; f.accounts.forEach(function (a) { if (a.type === 'bank') s += accountBalance(f, a.id, upto); }); return r2(s); }
+
+  // ---------- party balance ----------
+  // Positive returned value = WE OWE the party (payable). Negative = they owe us (receivable).
+  function partyBalance(f, partyId, upto) {
+    var p = party(f, partyId); if (!p) return 0;
+    var bal = 0;
+    if (p.openDir === 'payable') bal += num(p.openAmt);
+    else if (p.openDir === 'receivable') bal -= num(p.openAmt);
+    f.txns.forEach(function (t) {
+      if (upto && t.date > upto) return;
+      switch (t.type) {
+        case 'purchase': if (t.payKind === 'vendor' && t.vendorId === partyId) bal += num(t.amount); break; // we owe more
+        case 'labour': if (t.labourId === partyId) bal += num(t.amount); break;                               // we owe labour
+        case 'payment': if (t.toKind === 'party' && t.partyId === partyId) bal -= num(t.amount); break;        // we paid -> owe less
+        case 'sale': if (t.recvKind === 'vendor' && t.vendorId === partyId) bal -= num(t.amount); break;       // they owe us more
+        case 'receipt': if (t.fromKind === 'party' && t.partyId === partyId) bal += num(t.amount); break;      // they paid us -> they owe less (bal up toward 0)
+      }
+    });
+    return r2(bal);
+  }
+
+  // ---------- plot area ----------
+  function isCurrent(s, asOf) {
+    if (!s.startDate) return false;
+    if (asOf && s.startDate > asOf) return false;
+    if (s.endDate && (!asOf || s.endDate <= asOf)) return false; // ended on/before asOf
+    return !s.endDate || (asOf && s.endDate > asOf);
+  }
+  function plotUsedArea(f, plotId, asOf) {
+    var used = 0;
+    f.sowings.forEach(function (s) {
+      if (s.plotId !== plotId) return;
+      // current = started and not yet ended (as of asOf, default now/open)
+      var started = !asOf || s.startDate <= asOf;
+      var ended = s.endDate && (asOf ? s.endDate <= asOf : true);
+      if (started && !ended) used += num(s.area);
+    });
+    return r2(used);
+  }
+  function plotFreeArea(f, plotId, asOf) {
+    var p = plot(f, plotId); if (!p) return 0;
+    return r2(num(p.size) - plotUsedArea(f, plotId, asOf));
+  }
+
+  // ---------- lots (derived from cropend) ----------
+  function lots(f) {
+    return f.txns.filter(function (t) { return t.type === 'cropend'; }).map(function (t) {
+      var sold = 0, soldQ = 0, closed = false;
+      f.txns.forEach(function (x) {
+        if (x.type === 'sale' && x.lotId === t.id) { sold += num(x.amount); soldQ += num(x.qty); if (x.whole) closed = true; }
+        if (x.type === 'leftover' && x.lotId === t.id) { closed = true; }
+      });
+      var leftoverAmt = 0;
+      f.txns.forEach(function (x) { if (x.type === 'leftover' && x.lotId === t.id) leftoverAmt += num(x.amount); });
+      return {
+        id: t.id, sowingId: t.sowingId, name: t.lotName, qty: num(t.qty), rate: num(t.rate),
+        amount: num(t.amount), soldAmt: r2(sold), soldQty: r2(soldQ),
+        remainQty: r2(num(t.qty) - soldQ), remainAmt: r2(num(t.amount) - sold),
+        leftoverAmt: r2(leftoverAmt), closed: closed
+      };
+    });
+  }
+  function lotById(f, id) { var ls = lots(f); for (var i = 0; i < ls.length; i++) if (ls[i].id === id) return ls[i]; return null; }
+  function openLots(f) { return lots(f).filter(function (l) { return !l.closed; }); }
+
+  // ---------- sowing P&L ----------
+  function sowingPnl(f, sowingId, from, to) {
+    function inRange(d) { return (!from || d >= from) && (!to || d <= to); }
+    var incomeByLedger = {}, expByLedger = {}, income = 0, expense = 0;
+    function addInc(lid, amt) { income += amt; var k = lid || '(income)'; incomeByLedger[k] = r2((incomeByLedger[k] || 0) + amt); }
+    function addExp(lid, amt) { expense += amt; var k = lid || '(exp)'; expByLedger[k] = r2((expByLedger[k] || 0) + amt); }
+
+    f.txns.forEach(function (t) {
+      if (!inRange(t.date)) return;
+      switch (t.type) {
+        case 'purchase': if (t.sowingId === sowingId) addExp(t.ledgerId, num(t.amount)); break;
+        case 'labour': if (t.sowingId === sowingId) addExp(t.ledgerId, num(t.amount)); break;
+        case 'payment': if (t.toKind === 'ledger' && t.sowingId === sowingId) addExp(t.ledgerId, num(t.amount)); break;
+        case 'sale': if (t.sowingId === sowingId) addInc(t.ledgerId, num(t.amount)); break;
+        case 'receipt': if (t.fromKind === 'ledger' && t.sowingId === sowingId) addInc(t.ledgerId, num(t.amount)); break;
+        case 'leftover': if (t.sowingId === sowingId) addInc('(leftover)', num(t.amount)); break;
+      }
+    });
+    // provisional income from the (one) open lot of this sowing
+    var ls = lots(f).filter(function (l) { return l.sowingId === sowingId; });
+    var provisional = 0;
+    ls.forEach(function (l) {
+      if (!l.closed) {
+        var rem = l.amount - l.soldAmt;
+        if (rem > 0) provisional += rem;
+      }
+    });
+    provisional = r2(provisional);
+    if (provisional) { income += provisional; incomeByLedger['(stock est.)'] = r2((incomeByLedger['(stock est.)'] || 0) + provisional); }
+
+    return {
+      income: r2(income), expense: r2(expense), profit: r2(income - expense),
+      provisional: provisional, incomeByLedger: incomeByLedger, expByLedger: expByLedger
+    };
+  }
+
+  // general (untagged / 'other') P&L
+  function otherPnl(f, from, to) {
+    function inRange(d) { return (!from || d >= from) && (!to || d <= to); }
+    var income = 0, expense = 0;
+    f.txns.forEach(function (t) {
+      if (!inRange(t.date)) return;
+      var sow = t.sowingId;
+      var isOther = (sow === 'other' || sow === undefined || sow === null || sow === '');
+      switch (t.type) {
+        case 'purchase': if (isOther) expense += num(t.amount); break;
+        case 'labour': if (isOther) expense += num(t.amount); break;
+        case 'payment': if (t.toKind === 'ledger' && isOther) expense += num(t.amount); break;
+        case 'sale': if (isOther) income += num(t.amount); break;
+        case 'receipt': if (t.fromKind === 'ledger' && isOther) income += num(t.amount); break;
+      }
+    });
+    return { income: r2(income), expense: r2(expense), profit: r2(income - expense) };
+  }
+
+  function activeSowings(f, asOf) { return f.sowings.filter(function (s) { return !s.endDate || (asOf && s.endDate > asOf); }); }
+
+  function plotPnl(f, plotId, from, to) {
+    var inc = 0, exp = 0;
+    f.sowings.forEach(function (s) { if (s.plotId === plotId) { var p = sowingPnl(f, s.id, from, to); inc += p.income; exp += p.expense; } });
+    return { income: r2(inc), expense: r2(exp), profit: r2(inc - exp) };
+  }
+
+  function overallPnl(f, from, to) {
+    var inc = 0, exp = 0;
+    f.sowings.forEach(function (s) { var p = sowingPnl(f, s.id, from, to); inc += p.income; exp += p.expense; });
+    var o = otherPnl(f, from, to);
+    inc += o.income; exp += o.expense;
+    return { income: r2(inc), expense: r2(exp), profit: r2(inc - exp), other: o };
+  }
+
+  // ---------- books ----------
+  function accountBook(f, accId) {
+    var a = account(f, accId); var rows = []; var bal = num(a.opening);
+    rows.push({ date: '', desc: 'Opening', inAmt: 0, outAmt: 0, bal: r2(bal), opening: true });
+    var list = f.txns.slice().sort(function (x, y) { return (x.date || '').localeCompare(y.date || ''); });
+    list.forEach(function (t) {
+      var inA = 0, outA = 0, desc = '';
+      if (t.type === 'receipt' && t.toAccId === accId) { inA = num(t.amount); desc = 'Receipt'; }
+      else if (t.type === 'sale' && t.recvKind === 'account' && t.accId === accId) { inA = num(t.amount); desc = 'Sale'; }
+      else if (t.type === 'payment' && t.fromAccId === accId) { outA = num(t.amount); desc = 'Payment'; }
+      else if (t.type === 'purchase' && t.payKind === 'account' && t.accId === accId) { outA = num(t.amount); desc = 'Purchase'; }
+      else if (t.type === 'transfer' && t.fromAccId === accId) { outA = num(t.amount); desc = 'Transfer out'; }
+      else if (t.type === 'transfer' && t.toAccId === accId) { inA = num(t.amount); desc = 'Transfer in'; }
+      else return;
+      bal += inA - outA;
+      rows.push({ date: t.date, desc: desc + (t.remark ? ' — ' + t.remark : ''), inAmt: r2(inA), outAmt: r2(outA), bal: r2(bal), txn: t });
+    });
+    return rows;
+  }
+
+  function partyLedger(f, partyId) {
+    var p = party(f, partyId); var rows = []; var bal = 0;
+    if (p.openDir === 'payable') bal += num(p.openAmt); else if (p.openDir === 'receivable') bal -= num(p.openAmt);
+    rows.push({ date: '', desc: 'Opening', debit: 0, credit: 0, bal: r2(bal), opening: true });
+    var list = f.txns.slice().sort(function (x, y) { return (x.date || '').localeCompare(y.date || ''); });
+    list.forEach(function (t) {
+      var up = 0, down = 0, desc = ''; // up = we owe more, down = we owe less
+      if (t.type === 'purchase' && t.payKind === 'vendor' && t.vendorId === partyId) { up = num(t.amount); desc = 'Purchase (credit)'; }
+      else if (t.type === 'labour' && t.labourId === partyId) { up = num(t.amount); desc = 'Labour'; }
+      else if (t.type === 'payment' && t.toKind === 'party' && t.partyId === partyId) { down = num(t.amount); desc = 'Payment'; }
+      else if (t.type === 'sale' && t.recvKind === 'vendor' && t.vendorId === partyId) { down = num(t.amount); desc = 'Sale (credit)'; }
+      else if (t.type === 'receipt' && t.fromKind === 'party' && t.partyId === partyId) { up = num(t.amount); desc = 'Receipt'; }
+      else return;
+      bal += up - down;
+      rows.push({ date: t.date, desc: desc + (t.remark ? ' — ' + t.remark : ''), debit: r2(down), credit: r2(up), bal: r2(bal), txn: t });
+    });
+    return rows;
+  }
+
+  // income/expense report grouped by ledger (overall or filtered by sowing/plot)
+  function incomeExpReport(f, kind /*'income'|'exp'*/, filter) {
+    // filter: {from,to, sowingId, plotId}
+    filter = filter || {};
+    function inRange(d) { return (!filter.from || d >= filter.from) && (!filter.to || d <= filter.to); }
+    function match(t) {
+      if (filter.sowingId) return t.sowingId === filter.sowingId;
+      if (filter.plotId) { var s = sowing(f, t.sowingId); return s && s.plotId === filter.plotId; }
+      return true;
+    }
+    var byLedger = {}; var total = 0;
+    f.txns.forEach(function (t) {
+      if (!inRange(t.date) || !match(t)) return;
+      var lid = null, amt = 0;
+      if (kind === 'exp') {
+        if (t.type === 'purchase' || t.type === 'labour') { lid = t.ledgerId; amt = num(t.amount); }
+        else if (t.type === 'payment' && t.toKind === 'ledger') { lid = t.ledgerId; amt = num(t.amount); }
+        else return;
+      } else {
+        if (t.type === 'sale') { lid = t.ledgerId; amt = num(t.amount); }
+        else if (t.type === 'receipt' && t.fromKind === 'ledger') { lid = t.ledgerId; amt = num(t.amount); }
+        else if (t.type === 'leftover') { lid = '(leftover)'; amt = num(t.amount); }
+        else return;
+      }
+      var lg = ledger(f, lid); var name = lg ? lg.name : (lid || '(?)');
+      byLedger[name] = r2((byLedger[name] || 0) + amt); total += amt;
+    });
+    return { byLedger: byLedger, total: r2(total) };
+  }
+
+  // ---------- entry-level details for reports (income/expense entries) ----------
+  // filter: {from,to, sowingId, plotId, ledgerId, kind:'income'|'exp'}
+  function pnlEntries(f, filter) {
+    filter = filter || {};
+    function inRange(d) { return (!filter.from || d >= filter.from) && (!filter.to || d <= filter.to); }
+    var rows = [];
+    f.txns.forEach(function (t) {
+      if (!inRange(t.date)) return;
+      var kind = null, head = null;
+      switch (t.type) {
+        case 'sale': kind = 'income'; head = t.ledgerId; break;
+        case 'receipt': if (t.fromKind === 'ledger') { kind = 'income'; head = t.ledgerId; } break;
+        case 'leftover': kind = 'income'; head = '(leftover)'; break;
+        case 'purchase': kind = 'exp'; head = t.ledgerId; break;
+        case 'labour': kind = 'exp'; head = t.ledgerId; break;
+        case 'payment': if (t.toKind === 'ledger') { kind = 'exp'; head = t.ledgerId; } break;
+        default: return;
+      }
+      if (!kind) return;
+      if (filter.kind && filter.kind !== kind) return;
+      var sid = t.sowingId;
+      if (filter.sowIds) {
+        if (sid && sid !== 'other') { if (filter.sowIds.indexOf(sid) < 0) return; }
+        else { if (!filter.includeOther) return; }
+      }
+      else if (filter.sowingId) { if (sid !== filter.sowingId) return; }
+      else if (filter.plotId) { var s0 = sowing(f, sid); if (!s0 || s0.plotId !== filter.plotId) return; }
+      if (filter.ledgerId && head !== filter.ledgerId) return;
+      var s = sowing(f, sid);
+      var lg = ledger(f, head);
+      rows.push({
+        date: t.date, kind: kind, type: t.type,
+        crop: s ? sowingLabel(f, s) : null,
+        head: lg ? lg.name : (head === '(leftover)' ? null : head),
+        headKey: head,
+        qty: num(t.qty), rate: num(t.rate), amount: num(t.amount), remark: t.remark || '', txnId: t.id,
+        whole: !!t.whole, lotId: t.lotId || null
+      });
+    });
+    rows.sort(function (a, b) { return (a.date || '').localeCompare(b.date || ''); });
+    return rows;
+  }
+  // open-lot provisional income rows for a filter (sowingId/plotId)
+  function openLotRows(f, filter) {
+    filter = filter || {};
+    return lots(f).filter(function (l) {
+      if (l.closed) return false;
+      if (l.remainAmt <= 0) return false;
+      if (filter.sowIds) return filter.sowIds.indexOf(l.sowingId) >= 0;
+      if (filter.sowingId) return l.sowingId === filter.sowingId;
+      if (filter.plotId) { var s = sowing(f, l.sowingId); return s && s.plotId === filter.plotId; }
+      return true;
+    }).map(function (l) { var s = sowing(f, l.sowingId); return { name: l.name, crop: s ? sowingLabel(f, s) : '', amount: l.remainAmt, qty: l.remainQty }; });
+  }
+
+  // find where a crop was grown (suggestion for custom report validation)
+  function findCropPlots(f, cropId, from, to) {
+    var res = [];
+    f.sowings.forEach(function (s) {
+      if (s.cropId !== cropId) return;
+      // overlaps range?
+      var okFrom = !to || (s.startDate <= to);
+      var okTo = !from || (!s.endDate || s.endDate >= from);
+      if (okFrom && okTo) res.push(s);
+    });
+    return res;
+  }
+
+  var API = {
+    r2: r2, num: num, uid: uid, byId: byId,
+    plot: plot, crop: crop, party: party, ledger: ledger, account: account, sowing: sowing, sowingLabel: sowingLabel,
+    accountBalance: accountBalance, cashTotal: cashTotal, bankTotal: bankTotal,
+    partyBalance: partyBalance,
+    plotUsedArea: plotUsedArea, plotFreeArea: plotFreeArea,
+    lots: lots, lotById: lotById, openLots: openLots,
+    sowingPnl: sowingPnl, otherPnl: otherPnl, plotPnl: plotPnl, overallPnl: overallPnl,
+    activeSowings: activeSowings,
+    accountBook: accountBook, partyLedger: partyLedger, incomeExpReport: incomeExpReport, findCropPlots: findCropPlots,
+    pnlEntries: pnlEntries, openLotRows: openLotRows
+  };
+
+  if (typeof module !== 'undefined' && module.exports) module.exports = API;
+  else root.FarmEngine = API;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script>
+var E = window.FarmEngine;
+/* ============ i18n ============ */
+var T = {
+ en:{app:"Farm Manager",home:"Home",entry:"Entry",sow:"Sowing",reg:"Registration",report:"Reports",backup:"Backup",setting:"Settings",
+  cash:"Cash",bank:"Bank",incomeM:"Income (month)",expM:"Expense (month)",activeCrops:"Active crops",crops:"crops",
+  entrySub:"Payment · Receipt · Buy · Sell",sowSub:"Add crop to a plot",regSub:"Party · Crop · Ledger",reportSub:"Crop · Plot · P&L",backupSub:"Download · Restore",settingSub:"Language · Theme · PIN",
+  backupTitle:"Take today's backup",backupSub2:"Keep your data safe",switchFarm:"Switch farm",
+  payment:"Payment",receipt:"Receipt",purchase:"Purchase",sale:"Sale",labour:"Labour",cropend:"Crop End",transfer:"Cash↔Bank",stock:"Stock / Lots",txnlist:"All Entries",
+  firm:"Firm",plot:"Plot",party:"Vendor / Labour",crop:"Crop",ledger:"Ledger",account:"Cash / Bank",
+  save:"Save",add:"Add",del:"Delete",edit:"Edit",back:"Back",cancel:"Cancel",ok:"OK",amount:"Amount",date:"Date",remark:"Remark",qty:"Qty",rate:"Rate",unit:"Unit",name:"Name",type:"Type",contact:"Contact",city:"Village / City",
+  from:"From",to:"To",vendor:"Vendor",exp:"Expense",income:"Income",other:"Other (general)",fixed:"Fixed",contract:"Contract",whole:"Whole lot",partial:"Partial",
+  selFirm:"Select / Add Firm",farmName:"Farm name",farmer:"Farmer name",mobile:"Mobile",noPlots:"No. of plots",openCash:"Opening Cash",openBank:"Opening Bank",size:"Size",plotName:"Plot name",
+  startDate:"Start date",area:"Area",production:"Production",lotName:"Lot name",freeArea:"Free area",
+  crWise:"Crop-wise",plWise:"Plot-wise",overall:"Overall",incomeR:"Income",expR:"Expense",partyR:"Vendor/Labour",cashbook:"Cash book",bankbook:"Bank book",pnl:"Profit & Loss",
+  profit:"Profit",loss:"Loss",total:"Total",details:"Details",custom:"Custom (date/plot/crop)",current:"Current crops",
+  exportB:"Export backup (download)",importB:"Import backup (restore)",theme:"Theme",language:"Language",pin:"App PIN",setPin:"Set / change PIN",
+  welcome:"Welcome",chooseLang:"Choose language",createFirm:"Create your farm",enterPin:"Enter PIN",wrongPin:"Wrong PIN",
+  reqd:"required",noData:"No data yet",seed:"Seed",homeU:"Home use",spoil:"Spoilage",closeLeft:"Close (leftover)",leftReason:"Where did the rest go?",enterAmt:"Enter amount (adds to income)",
+  payTo:"Pay to",recvFrom:"Receive from",sellWhat:"What to sell",runningCrop:"Current crop",stockLot:"Stock lot",remaining:"Remaining (est.)",
+  youOwe:"You owe",owesYou:"Owes you",settled:"Settled",balance:"Balance",opening:"Opening",
+  compHint:"Only needed fields are required.",owe:"we owe", recv:"they owe",
+  delConfirm:"Delete this?",usedWarn:"Cannot delete — it is used in entries.",noFirm:"No farm. Create one to start.",
+  monthP:"This month", nothingHere:"Nothing here yet.", chooseAcc:"Cash / Bank",
+  plotCropReq:"Plot & Crop required for expense/income ledgers.",areaErr:"Area more than free area of plot.",
+  increaseOnly:"Area can only be increased, not decreased.",areaUpTo:"Can increase up to",sizeUsedErr:"New size is less than area already in use.",newArea:"New area",editArea:"Edit area",newPlotSize:"New plot size (if land sold)",plotSizeHint:"Leave blank to keep same. Fill only if you sold land.",unitLocked:"Unit can't change (already used).",
+  dateErr:"New crop date must be after the plot's last crop end date.",
+  sold:"Sold", estAmt:"Est. amount", addLedger:"Ledger (head)", perUnit:"",
+  youPay:"You have to pay",youGet:"You have to receive",view:"View",viewOnly:"View only (crop completed)",locked:"Completed crop — locked",
+  details:"Details",hideDetails:"Hide details",qtyRate:"Qty × Rate",head:"Head",stockEst:"Stock estimate (unsold)",leftoverH:"Leftover",noEntry:"No entries.",saleHist:"Sales",
+  remainLot:"remaining",ofLot:"of",background:"Background",bgTractor:"Tractor + Crop (green)",bgHarvest:"Harvester + Wheat",bgSunrise:"Sunrise Field",bgNight:"Night Farm",bgPlain:"Plain color",bgCustom:"My photo",uploadImg:"Upload my photo",imgBig:"Image too big — pick a smaller one (under 2.5 MB).",
+  delSow:"Delete crop",sowLocked:"Crop has entries — cannot edit/delete. Only area can be increased.",areaInc:"Increase area",cropArea:"area",moneyIn:"In",moneyOut:"Out",openingBal:"Opening",profitWord:"Profit",
+  themeFasal:"फसल / Harvest",themeNadi:"नदी / River",
+  period:"Period",fCurrent:"Current crop",fLast:"Last completed crop",fCustom:"Custom dates",noCompleted:"No completed crop yet.",asOn:"as on"},
+ hi:{app:"फार्म मैनेजर",home:"होम",entry:"एंट्री",sow:"बिजाई",reg:"रजिस्ट्रेशन",report:"रिपोर्ट",backup:"बैकअप",setting:"सेटिंग",
+  cash:"नकद",bank:"बैंक",incomeM:"इस माह आय",expM:"इस माह खर्च",activeCrops:"चालू फसल",crops:"फसल",
+  entrySub:"पेमेंट · रसीद · खरीद · सेल",sowSub:"प्लॉट में फसल लगाएं",regSub:"पार्टी · फसल · लेजर",reportSub:"फसल · प्लॉट · नफा-नुकसान",backupSub:"डाउनलोड · रिस्टोर",settingSub:"भाषा · थीम · पिन",
+  backupTitle:"आज का बैकअप लें",backupSub2:"अपना डेटा सुरक्षित रखें",switchFarm:"फर्म बदलें",
+  payment:"पेमेंट",receipt:"रसीद",purchase:"खरीद",sale:"सेल",labour:"मजदूरी",cropend:"फसल समाप्त",transfer:"नकद↔बैंक",stock:"स्टॉक / लॉट",txnlist:"सभी एंट्री",
+  firm:"फर्म",plot:"प्लॉट",party:"वेंडर / मजदूर",crop:"फसल",ledger:"लेजर",account:"नकद / बैंक",
+  save:"सेव",add:"जोड़ें",del:"हटाएं",edit:"बदलें",back:"वापस",cancel:"रद्द",ok:"ठीक",amount:"रकम",date:"तारीख",remark:"रिमार्क",qty:"मात्रा",rate:"भाव",unit:"यूनिट",name:"नाम",type:"प्रकार",contact:"संपर्क",city:"गाँव / शहर",
+  from:"से",to:"को",vendor:"वेंडर",exp:"खर्च",income:"आय",other:"अन्य (सामान्य)",fixed:"फिक्स",contract:"ठेका",whole:"पूरा लॉट",partial:"थोड़ा (पार्शियल)",
+  selFirm:"फर्म चुनें / जोड़ें",farmName:"फार्म का नाम",farmer:"किसान का नाम",mobile:"मोबाइल",noPlots:"प्लॉट की संख्या",openCash:"शुरुआती नकद",openBank:"शुरुआती बैंक",size:"साइज़",plotName:"प्लॉट का नाम",
+  startDate:"शुरू तारीख",area:"क्षेत्र",production:"उत्पादन",lotName:"लॉट का नाम",freeArea:"खाली क्षेत्र",
+  crWise:"फसल-वार",plWise:"प्लॉट-वार",overall:"कुल",incomeR:"आय",expR:"खर्च",partyR:"वेंडर/मजदूर",cashbook:"नकद बुक",bankbook:"बैंक बुक",pnl:"नफा-नुकसान",
+  profit:"नफा",loss:"नुकसान",total:"कुल",details:"विवरण",custom:"कस्टम (तारीख/प्लॉट/फसल)",current:"चालू फसल",
+  exportB:"बैकअप एक्सपोर्ट (डाउनलोड)",importB:"बैकअप इम्पोर्ट (रिस्टोर)",theme:"थीम",language:"भाषा",pin:"ऐप पिन",setPin:"पिन सेट / बदलें",
+  welcome:"स्वागत है",chooseLang:"भाषा चुनें",createFirm:"अपना फार्म बनाएं",enterPin:"पिन डालें",wrongPin:"गलत पिन",
+  reqd:"ज़रूरी",noData:"अभी कोई डेटा नहीं",seed:"बीज",homeU:"घर उपयोग",spoil:"खराब",closeLeft:"बंद करें (बचा हुआ)",leftReason:"बाकी कहाँ गया?",enterAmt:"रकम डालें (आय में जुड़ेगी)",
+  payTo:"किसे पेमेंट",recvFrom:"किससे रसीद",sellWhat:"क्या बेचना है",runningCrop:"चालू फसल",stockLot:"स्टॉक लॉट",remaining:"बचा (अनुमानित)",
+  youOwe:"आपको देना",owesYou:"आपको लेना",settled:"चुकता",balance:"बैलेंस",opening:"शुरुआती",
+  compHint:"सिर्फ़ ज़रूरी खाने भरना अनिवार्य है।",owe:"देना", recv:"लेना",
+  delConfirm:"इसे हटाएं?",usedWarn:"हटा नहीं सकते — यह एंट्री में इस्तेमाल हुआ है।",noFirm:"कोई फार्म नहीं। शुरू करने के लिए बनाएं।",
+  monthP:"इस माह", nothingHere:"अभी यहाँ कुछ नहीं।", chooseAcc:"नकद / बैंक",
+  plotCropReq:"खर्च/आय लेजर के लिए प्लॉट और फसल ज़रूरी है।",areaErr:"क्षेत्र प्लॉट के खाली क्षेत्र से ज़्यादा है।",
+  increaseOnly:"क्षेत्र सिर्फ़ बढ़ा सकते हैं, घटा नहीं।",areaUpTo:"इतना तक बढ़ा सकते हैं",sizeUsedErr:"नया साइज़ पहले से इस्तेमाल क्षेत्र से कम है।",newArea:"नया क्षेत्र",editArea:"क्षेत्र बदलें",newPlotSize:"नया प्लॉट साइज़ (ज़मीन बेची हो तो)",plotSizeHint:"खाली छोड़ें तो वही रहेगा। ज़मीन बेची हो तभी भरें।",unitLocked:"यूनिट नहीं बदल सकती (पहले इस्तेमाल हो चुकी)।",
+  dateErr:"नई फसल की तारीख प्लॉट की पिछली फसल समाप्त तारीख के बाद होनी चाहिए।",
+  sold:"बिका", estAmt:"अनुमानित रकम", addLedger:"लेजर (हेड)", perUnit:"",
+  youPay:"आपको देना है",youGet:"आपको लेना है",view:"देखें",viewOnly:"सिर्फ़ देखें (फसल पूरी हो चुकी)",locked:"पूरी फसल — लॉक",
+  details:"विवरण",hideDetails:"विवरण छुपाएं",qtyRate:"मात्रा × भाव",head:"हेड",stockEst:"स्टॉक अनुमान (बिना बिका)",leftoverH:"बचा हुआ",noEntry:"कोई एंट्री नहीं।",saleHist:"बिक्री",
+  remainLot:"बचा",ofLot:"में से",background:"बैकग्राउंड",bgTractor:"ट्रैक्टर + फसल (हरा)",bgHarvest:"हार्वेस्टर + गेहूं",bgSunrise:"सूर्योदय खेत",bgNight:"रात का खेत",bgPlain:"सादा रंग",bgCustom:"मेरी फोटो",uploadImg:"मेरी फोटो अपलोड करें",imgBig:"फोटो बहुत बड़ी है — छोटी चुनें (2.5 MB से कम)।",
+  delSow:"फसल हटाएं",sowLocked:"फसल में एंट्री है — बदल/हटा नहीं सकते। सिर्फ़ क्षेत्र बढ़ा सकते हैं।",areaInc:"क्षेत्र बढ़ाएं",cropArea:"क्षेत्र",moneyIn:"आया",moneyOut:"गया",openingBal:"शुरुआती",profitWord:"नफा",
+  themeFasal:"फसल / Harvest",themeNadi:"नदी / River",
+  period:"अवधि",fCurrent:"चालू फसल",fLast:"पिछली पूरी फसल",fCustom:"कस्टम तारीख",noCompleted:"अभी कोई पूरी फसल नहीं।",asOn:"तक"}
+};
+function t(k){ var l=(DB.settings&&DB.settings.lang)||'hi'; return (T[l]&&T[l][k])||(T.en[k])||k; }
+
+/* ============ DB ============ */
+var KEY='farmapp_v1';
+var DB;
+function load(){
+  try{ var s=localStorage.getItem(KEY); if(s){ DB=JSON.parse(s); } }catch(e){ DB=null; }
+  if(!DB||typeof DB!=='object') DB={firms:[],activeFirmId:null,settings:{lang:'hi',theme:'harit',bg:'tractor',pin:null,lastBackup:null}};
+  if(!DB.settings) DB.settings={lang:'hi',theme:'harit',bg:'tractor',pin:null,lastBackup:null};
+  if(!DB.settings.bg) DB.settings.bg='tractor';
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){ toast('Storage error'); } }
+function curFirm(){ return (DB.firms||[]).filter(function(f){return f.id===DB.activeFirmId;})[0]||null; }
+
+/* ============ helpers ============ */
+function esc(s){ s=(s==null?'':''+s); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function money(n){ n=Math.round((Number(n)||0)); var neg=n<0; n=Math.abs(n); var s=n.toString(); var last3=s.slice(-3); var rest=s.slice(0,-3); if(rest) last3=','+last3; rest=rest.replace(/\B(?=(\d{2})+(?!\d))/g,','); return (neg?'-':'')+'₹ '+rest+last3; }
+function today(){ return new Date().toISOString().slice(0,10); }
+function monthStart(){ var d=new Date(); return new Date(d.getFullYear(),d.getMonth(),1).toISOString().slice(0,10); }
+function toast(m){ var el=document.getElementById('toast'); el.textContent=m; el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(function(){el.classList.remove('show');},1900); }
+function go(h){ location.hash=h; }
+function applyTheme(){ document.documentElement.setAttribute('data-theme', (DB.settings.theme)||'harit'); document.documentElement.lang=(DB.settings.lang)||'hi'; renderBg(); }
+/* ---- background scenes (original SVG art; or user's own uploaded photo) ---- */
+function bgSceneSVG(name){
+  var sky,sun,ground,crop,veh;
+  function wheat(x){ return '<g transform="translate('+x+',250)" stroke="#caa43a" stroke-width="2.4" fill="none" stroke-linecap="round"><path d="M0 60V18"/><path d="M0 26c0-6 4-10 9-10 0 6-4 10-9 10z"/><path d="M0 26c0-6-4-10-9-10 0 6 4 10 9 10z"/><path d="M0 35c0-6 4-10 9-10 0 6-4 10-9 10z"/><path d="M0 35c0-6-4-10-9-10 0 6 4 10 9 10z"/><path d="M0 44c0-6 4-10 9-10 0 6-4 10-9 10z"/><path d="M0 44c0-6-4-10-9-10 0 6 4 10 9 10z"/></g>'; }
+  if(name==='harvest'){
+    sky='<rect width="390" height="844" fill="#9fd0ef"/><rect y="300" width="390" height="544" fill="#e9c24d"/>';
+    sun='<circle cx="310" cy="90" r="34" fill="#fff4c2" opacity=".9"/>';
+    var clouds='<g fill="#ffffff" opacity=".85"><ellipse cx="80" cy="90" rx="42" ry="16"/><ellipse cx="120" cy="100" rx="34" ry="13"/><ellipse cx="250" cy="150" rx="38" ry="14"/></g>';
+    var field='<rect y="300" width="390" height="544" fill="#e9c24d"/><g stroke="#d6a92f" stroke-width="3">'+[340,380,430,490,560,640,730].map(function(y){return '<path d="M-10 '+y+'q200 -18 410 0"/>';}).join('')+'</g>';
+    // harvester
+    veh='<g transform="translate(150,340)"><rect x="40" y="-6" width="78" height="46" rx="6" fill="#dfe4e8" stroke="#9aa3ab" stroke-width="2"/><rect x="88" y="-26" width="34" height="26" rx="4" fill="#bcd3e6" stroke="#9aa3ab" stroke-width="2"/><rect x="-10" y="20" width="60" height="26" rx="4" fill="#e03b3b"/><g stroke="#8a2626" stroke-width="2"><path d="M-6 20v26M4 20v26M14 20v26M24 20v26M34 20v26M44 20v26"/></g><circle cx="60" cy="58" r="20" fill="#2b2b2b"/><circle cx="60" cy="58" r="8" fill="#777"/><circle cx="110" cy="58" r="14" fill="#2b2b2b"/><circle cx="110" cy="58" r="6" fill="#777"/></g>';
+    return sky+clouds+sun+field+veh;
+  }
+  if(name==='sunrise'){
+    sky='<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd79b"/><stop offset="0.5" stop-color="#ffc17a"/><stop offset="1" stop-color="#eef3f0"/></linearGradient></defs><rect width="390" height="844" fill="url(#sg)"/><rect y="430" width="390" height="414" fill="#7bbf5e"/>';
+    sun='<circle cx="195" cy="250" r="60" fill="#fff0c2" opacity=".95"/><circle cx="195" cy="250" r="90" fill="#ffe08a" opacity=".3"/>';
+    var rows='<g stroke="#5ea34a" stroke-width="3" opacity=".8">'+[470,520,580,650,730].map(function(y){return '<path d="M-10 '+y+'q200 -22 410 0"/>';}).join('')+'</g>';
+    return sky+sun+rows+wheat(40)+wheat(330);
+  }
+  if(name==='night'){
+    sky='<rect width="390" height="844" fill="#16233a"/><rect y="470" width="390" height="374" fill="#13331f"/>';
+    var stars='<g fill="#cfe0ff">'+[[40,80],[90,140],[160,60],[230,120],[300,70],[340,160],[120,220],[280,210]].map(function(p){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="1.6"/>';}).join('')+'</g>';
+    sun='<circle cx="305" cy="110" r="30" fill="#f2f0d8" opacity=".92"/><circle cx="316" cy="104" r="30" fill="#16233a"/>';
+    var rows='<g stroke="#1d4a2d" stroke-width="3">'+[520,580,650,730].map(function(y){return '<path d="M-10 '+y+'q200 -20 410 0"/>';}).join('')+'</g>';
+    return sky+stars+sun+rows;
+  }
+  // default 'tractor' — green field + sun + green tractor + crops
+  sky='<defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe3f6"/><stop offset="1" stop-color="#eaf4ea"/></linearGradient></defs><rect width="390" height="844" fill="url(#tg)"/>';
+  ground='<rect y="360" width="390" height="484" fill="#8ac06a"/><rect y="520" width="390" height="324" fill="#9a6a3a"/><g stroke="#86582f" stroke-width="3" opacity=".8">'+[560,610,670,740].map(function(y){return '<path d="M-10 '+y+'q200 -16 410 0"/>';}).join('')+'</g>';
+  sun='<circle cx="315" cy="95" r="30" fill="#ffe487"/><g stroke="#ffe487" stroke-width="3"><path d="M315 50v-12M315 140v12M270 95h-12M360 95h12M283 63l-9-9M347 127l9 9M283 127l-9 9M347 63l9-9"/></g>';
+  var hills='<path d="M-10 360q120 -70 210 -10t200 -10V360z" fill="#7bb85a"/>';
+  crop=wheat(30)+'<g transform="translate(60,250)" stroke="#3f9b4a" stroke-width="2.6" fill="none" stroke-linecap="round"><path d="M0 60V20"/><path d="M0 34c-8-4-12-12-12-20 8 2 12 10 12 20z"/><path d="M0 34c8-4 12-12 12-20-8 2-12 10-12 20z"/></g>';
+  // green tractor
+  veh='<g transform="translate(205,330)"><rect x="18" y="0" width="58" height="34" rx="6" fill="#2e8b3d" stroke="#1f6a2c" stroke-width="2"/><rect x="40" y="-24" width="30" height="26" rx="4" fill="#bfe0c6" stroke="#1f6a2c" stroke-width="2"/><rect x="8" y="14" width="18" height="20" rx="3" fill="#2e8b3d" stroke="#1f6a2c" stroke-width="2"/><path d="M76 10h14l6 12h-20z" fill="#2e8b3d" stroke="#1f6a2c" stroke-width="2"/><circle cx="34" cy="44" r="22" fill="#2b2b2b"/><circle cx="34" cy="44" r="9" fill="#e9c23a"/><circle cx="90" cy="48" r="13" fill="#2b2b2b"/><circle cx="90" cy="48" r="5" fill="#e9c23a"/></g>';
+  return sky+hills+sun+ground+veh+crop+wheat(330)+wheat(360);
+}
+function renderBg(){
+  var el=document.getElementById('bg'); if(!el) return;
+  var bg=(DB.settings&&DB.settings.bg)||'tractor';
+  if(bg==='custom' && DB.settings.bgImage){ el.className='custom'; el.style.backgroundImage='url('+DB.settings.bgImage+')'; el.innerHTML=''; return; }
+  el.className=''; el.style.backgroundImage='';
+  if(bg==='plain'){ el.innerHTML=''; return; }
+  el.innerHTML='<svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice">'+bgSceneSVG(bg)+'</svg>';
+}
+function optList(items, selId, getLabel){ return items.map(function(it){ return '<option value="'+esc(it.id)+'"'+(it.id===selId?' selected':'')+'>'+esc(getLabel?getLabel(it):it.name)+'</option>'; }).join(''); }
+function val(id){ var e=document.getElementById(id); return e?e.value:''; }
+function numv(id){ return E.num(val(id)); }
+
+/* ============ app shell ============ */
+function header(title, showBack){
+  return '<header>'+
+    (showBack?'<button class="iconbtn" onclick="history.back()" aria-label="back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>':
+      '<span class="iconbtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>')+
+    '<span class="ttl">'+esc(title)+'</span>'+
+    (showBack?'':'<button onclick="go(\'firms\')">'+esc(t('switchFarm'))+'</button>')+
+    '</header>';
+}
+function bottomNav(active){
+  function b(id,ic,lab){ return '<button class="'+(active===id?'on':'')+'" onclick="go(\''+id+'\')">'+ic+'<span>'+esc(lab)+'</span></button>'; }
+  var home='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>';
+  var ent='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8.5v7M8.5 12h7"/></svg>';
+  var rep='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M7 20v-6M12 20V8M17 20v-9"/></svg>';
+  var bk='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10M8 10.5l4 4 4-4M5 19.5h14"/></svg>';
+  var st='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 3.6v2.3M12 18.1v2.3M4.5 7.3l2 1.2M17.5 15.5l2 1.2M4.5 16.7l2-1.2M17.5 8.5l2-1.2M3.6 12h2.3M18.1 12h2.3"/></svg>';
+  return '<div class="bottomnav">'+b('home',home,t('home'))+b('entry',ent,t('entry'))+b('report',rep,t('report'))+b('backup',bk,t('backup'))+b('settings',st,t('setting'))+'</div>';
+}
+function screen(html, navActive, title, showBack){
+  document.getElementById('app').innerHTML = (title!=null?header(title,showBack):'') + html + (navActive?bottomNav(navActive):'');
+  window.scrollTo(0,0);
+}
+
+/* ============ ICONS for tiles ============ */
+var IC={
+ entry:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8.5v7M8.5 12h7"/></svg>',
+ sow:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-8"/><path d="M12 13c0-3.3 2.2-5.5 5.5-5.5C17.5 10.8 15.3 13 12 13z"/><path d="M12 13c0-2.8-2-4.8-4.8-4.8C7.2 11 9.2 13 12 13z"/></svg>',
+ reg:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="5" width="12" height="15" rx="2"/><path d="M9 5V4h6v1M9.5 10h5M9.5 13.5h5M9.5 17h3"/></svg>',
+ report:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M7 20v-6M12 20V8M17 20v-9"/></svg>',
+ backup:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10M8 10.5l4 4 4-4M5 19.5h14"/></svg>',
+ setting:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 3.6v2.3M12 18.1v2.3M4.5 7.3l2 1.2M17.5 15.5l2 1.2M4.5 16.7l2-1.2M17.5 8.5l2-1.2M3.6 12h2.3M18.1 12h2.3"/></svg>'
+};
+function tile(hash,ic,nm,sub){ return '<button class="tile" onclick="go(\''+hash+'\')"><span class="ic">'+ic+'</span><span class="nm">'+esc(nm)+'</span><span class="sub">'+esc(sub)+'</span></button>'; }
+
+/* included: part 2 (screens) */
+</script>
+<script>
+/* ===================== Farm Manager — screens & logic ===================== */
+var EDIT_TXN=null;      // txn being edited
+var EDIT_M=null;        // master being edited {kind,id}
+var FR={step:0,plots:0};// first-run state
+function editMaster(kind,id){ EDIT_M={kind:kind,id:id}; ({plot:mPlot,party:mParty,crop:mCrop,ledger:mLedger,account:mAccount})[kind](); }
+function curEdit(kind){ var f=curFirm(); if(EDIT_M&&EDIT_M.kind===kind){ var map={plot:'plots',party:'parties',crop:'crops',ledger:'ledgers',account:'accounts'}; return E.byId(f[map[kind]],EDIT_M.id); } return null; }
+/* number inputs par mouse wheel se value change na ho (poori app) */
+window.addEventListener('wheel',function(e){ var a=document.activeElement; if(a&&a.tagName==='INPUT'&&a.type==='number'&&a===e.target){ e.preventDefault(); } },{passive:false});
+
+/* ---------- field builders ---------- */
+function fld(label,id,type,v,extra){ return '<label>'+esc(label)+'</label><input id="'+id+'" type="'+(type||'text')+'" value="'+esc(v==null?'':v)+'" '+(extra||'')+'>'; }
+function sel(label,id,html,extra){ return '<label>'+esc(label)+'</label><select id="'+id+'" '+(extra||'')+'>'+html+'</select>'; }
+function dateF(id,v){ return '<input id="'+id+'" type="date" value="'+esc(v||today())+'">'; }
+
+function accOptions(f,selId){ return optList(f.accounts,selId,function(a){return a.name+' ('+(a.type==='cash'?t('cash'):t('bank'))+')';}); }
+function partyOptions(f,selId,typeFilter,withBal){ var l=f.parties.filter(function(p){return !typeFilter||p.type===typeFilter;});
+  if(!withBal) return '<option value="">—</option>'+optList(l,selId);
+  return '<option value="">—</option>'+l.map(function(p){ var b=E.partyBalance(f,p.id); var tag=b>0?(' [+'+money(b)+' '+t('owe')+']'):(b<0?(' ['+'-'+money(-b)+' '+t('recv')+']'):' ['+t('settled')+']'); return '<option value="'+esc(p.id)+'"'+(p.id===selId?' selected':'')+'>'+esc(p.name+tag)+'</option>'; }).join('');
+}
+function ledgerOptions(f,selId,type){ var l=f.ledgers.filter(function(x){return !type||x.type===type;}); return '<option value="">—</option>'+optList(l,selId); }
+function cropOptions(f,selId){ return '<option value="">—</option>'+optList(f.crops,selId); }
+function plotOptions(f,selId){ return '<option value="">—</option>'+optList(f.plots,selId); }
+function sowOptLabel(f,s){ return E.sowingLabel(f,s)+' · '+t('cropArea')+' '+s.area+(s.endDate?' ('+t('locked')+')':''); }
+function sowOptions(f,selId,withOther){
+  // unique keep order: active first, then ended (for forgotten expense entry)
+  var seen={},list=[];
+  E.activeSowings(f).forEach(function(s){ if(!seen[s.id]){seen[s.id]=1;list.push(s);} });
+  f.sowings.forEach(function(s){ if(!seen[s.id]){seen[s.id]=1;list.push(s);} });
+  var o=(withOther?'<option value="other">'+esc(t('other'))+'</option>':'<option value="">—</option>');
+  return o+list.map(function(s){ return '<option value="'+s.id+'"'+(s.id===selId?' selected':'')+'>'+esc(sowOptLabel(f,s))+'</option>'; }).join('');
+}
+function sowUsed(f,id){ return f.txns.some(function(x){ if(x.sowingId===id) return true; if(x.type==='sale'&&x.lotId){ var l=E.lotById(f,x.lotId); if(l&&l.sowingId===id) return true; } return false; }); }
+
+/* ========================================================= ROUTER */
+function route(){
+  load(); applyTheme();
+  var h=location.hash.replace(/^#/,''); var q=''; if(h.indexOf('?')>=0){ q=h.split('?')[1]; h=h.split('?')[0]; }
+  if(!DB.firms.length){ return firstRun(); }
+  if(DB.settings.pin && !window._unlocked){ return pinGate(); }
+  if(!curFirm()){ DB.activeFirmId=DB.firms[0].id; save(); }
+  if(h.indexOf('m/')===0) EDIT_M=null;  // fresh master screen via nav -> not edit mode
+  SOW_EDIT=null; SOW_AREA=null;          // reset sowing edit state on any navigation
+  switch(h){
+    case '': case 'home': return scrHome();
+    case 'firms': return scrFirms();
+    case 'entry': return scrEntryMenu();
+    case 'e/payment': return formPayment();
+    case 'e/receipt': return formReceipt();
+    case 'e/purchase': return formPurchase();
+    case 'e/sale': return formSale();
+    case 'e/labour': return formLabour();
+    case 'e/cropend': return formCropEnd();
+    case 'e/transfer': return formTransfer();
+    case 'e/stock': return scrStock();
+    case 'txns': return scrTxns();
+    case 'reg': return scrRegMenu();
+    case 'm/firm': return mFirm();
+    case 'm/plot': return mPlot();
+    case 'm/party': return mParty();
+    case 'm/crop': return mCrop();
+    case 'm/ledger': return mLedger();
+    case 'm/account': return mAccount();
+    case 'sow': return scrSow();
+    case 'report': return scrReportMenu();
+    case 'r/crop': return rCrop();
+    case 'r/plot': return rPlot();
+    case 'r/overall': return rOverall();
+    case 'r/income': return rIncome();
+    case 'r/exp': return rExp();
+    case 'r/party': return rParty();
+    case 'r/cash': return rBook('cash');
+    case 'r/bank': return rBook('bank');
+    case 'r/pnl': return rPnl();
+    case 'backup': return scrBackup();
+    case 'settings': return scrSettings();
+    default: return scrHome();
+  }
+}
+window.addEventListener('hashchange',route);
+
+/* ========================================================= FIRST RUN */
+function firstRun(){
+  if(FR.step===0){
+    document.getElementById('app').innerHTML=
+     '<div class="center"><div class="logo"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-8"/><path d="M12 13c0-3.3 2.2-5.5 5.5-5.5C17.5 10.8 15.3 13 12 13z"/><path d="M12 13c0-2.8-2-4.8-4.8-4.8C7.2 11 9.2 13 12 13z"/></svg></div>'+
+     '<div class="h2">'+esc(T.hi.chooseLang)+' / '+esc(T.en.chooseLang)+'</div>'+
+     '<div class="langsel"><button onclick="pickLang(\'hi\')">हिंदी</button><button onclick="pickLang(\'en\')">English</button></div></div>';
+    return;
+  }
+  // firm create (plots Registration me add honge)
+  screen(
+   '<div class="card"><div class="h2">'+esc(t('createFirm'))+'</div>'+
+   fld(t('farmName'),'f_name')+ fld(t('city'),'f_city')+ fld(t('farmer'),'f_farmer')+ fld(t('mobile'),'f_mobile','tel')+
+   '<div class="grid2">'+fld(t('openCash'),'f_oc','number',0)+fld(t('openBank'),'f_ob','number',0)+'</div>'+
+   '<small class="hint">'+esc(DB.settings.lang==='hi'?'प्लॉट/खेत बाद में Registration में जोड़ें।':'Add plots later in Registration.')+'</small>'+
+   '<div style="height:12px"></div><button class="btn" onclick="saveFirstFirm()">'+esc(t('save'))+'</button></div>', null, t('welcome'));
+}
+function pickLang(l){ DB.settings.lang=l; save(); FR.step=1; FR.plots=1; applyTheme(); firstRun(); }
+function plotRow(i){
+  return '<div class="plotrow"><input id="pn_'+i+'" placeholder="'+esc(t('plotName'))+' '+(i+1)+'">'+
+   '<input id="ps_'+i+'" type="number" placeholder="'+esc(t('size'))+'">'+
+   '<select id="pu_'+i+'"><option value="bigha">बीघा</option><option value="acre">एकड़</option><option value="hectare">हेक्टेयर</option></select>'+
+   '<span></span></div>';
+}
+function seedDefaults(f){
+  var hi=DB.settings.lang==='hi';
+  var exp=hi?['खाद','दवाई','बीज','डीज़ल','सिंचाई','जुताई','मजदूरी']:['Fertilizer','Pesticide','Seed','Diesel','Irrigation','Ploughing','Labour'];
+  var inc=hi?['फसल बिक्री','अन्य आय']:['Crop Sale','Other Income'];
+  exp.forEach(function(n){ f.ledgers.push({id:E.uid('le'),name:n,type:'exp'}); });
+  inc.forEach(function(n){ f.ledgers.push({id:E.uid('li'),name:n,type:'income'}); });
+}
+function saveFirstFirm(){
+  var n=val('f_name').trim(); if(!n){ toast(t('farmName')+' '+t('reqd')); return; }
+  var f={id:E.uid('f'),name:n,city:val('f_city'),farmer:val('f_farmer'),mobile:val('f_mobile'),
+    plots:[],parties:[],crops:[],ledgers:[],
+    accounts:[{id:E.uid('a'),name:t('cash'),type:'cash',opening:E.num(val('f_oc'))},{id:E.uid('a'),name:t('bank'),type:'bank',opening:E.num(val('f_ob'))}],
+    sowings:[],txns:[]};
+  seedDefaults(f);
+  DB.firms.push(f); DB.activeFirmId=f.id; save(); FR.step=0; toast(t('save')+' ✓'); go('home'); route();
+}
+
+/* ========================================================= PIN */
+function pinGate(){
+  document.getElementById('app').innerHTML='<div class="center"><div class="logo">🔒</div><div class="h2">'+esc(t('enterPin'))+'</div>'+
+   '<input id="pinv" type="password" inputmode="numeric" style="max-width:220px;text-align:center;font-size:22px;letter-spacing:6px">'+
+   '<div style="height:10px"></div><button class="btn" style="max-width:220px" onclick="tryPin()">'+esc(t('ok'))+'</button></div>';
+}
+function tryPin(){ if(val('pinv')===DB.settings.pin){ window._unlocked=true; route(); } else toast(t('wrongPin')); }
+
+/* ========================================================= HOME */
+function scrHome(){
+  var f=curFirm();
+  var cash=E.cashTotal(f), bank=E.bankTotal(f);
+  var ms=monthStart(), te=today();
+  var inc=0,exp=0;
+  f.txns.forEach(function(x){ if(x.date<ms||x.date>te) return;
+    if(x.type==='sale') inc+=E.num(x.amount);
+    else if(x.type==='receipt'&&x.fromKind==='ledger') inc+=E.num(x.amount);
+    else if(x.type==='purchase'||x.type==='labour') exp+=E.num(x.amount);
+    else if(x.type==='payment'&&x.toKind==='ledger') exp+=E.num(x.amount);
+  });
+  var active=E.activeSowings(f).length;
+  var needBackup=(DB.settings.lastBackup!==today());
+  var html='';
+  if(needBackup) html+='<div class="banner"><span style="flex:1"><div class="t1">'+esc(t('backupTitle'))+'</div><div class="t2">'+esc(t('backupSub2'))+'</div></span><button class="btn sm" onclick="go(\'backup\')">'+esc(t('backup'))+'</button></div>';
+  html+='<div class="sumg">'+
+    '<div class="sumc"><div class="k">'+esc(t('cash'))+'</div><div class="v">'+money(cash)+'</div></div>'+
+    '<div class="sumc"><div class="k">'+esc(t('bank'))+'</div><div class="v">'+money(bank)+'</div></div>'+
+    '<div class="sumc"><div class="k">'+esc(t('incomeM'))+'</div><div class="v pos">'+money(inc)+'</div></div>'+
+    '<div class="sumc"><div class="k">'+esc(t('expM'))+'</div><div class="v neg">'+money(exp)+'</div></div></div>';
+  html+='<div class="sumc" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span class="k" style="font-size:14px;color:var(--text);font-weight:600">'+esc(t('activeCrops'))+'</span><span class="v" style="color:var(--primary)">'+active+' '+esc(t('crops'))+'</span></div>';
+  html+='<div class="tilegrid">'+
+    tile('reg',IC.reg,t('reg'),t('regSub'))+
+    tile('sow',IC.sow,t('sow'),t('sowSub'))+
+    tile('entry',IC.entry,t('entry'),t('entrySub'))+
+    tile('report',IC.report,t('report'),t('reportSub'))+
+    tile('backup',IC.backup,t('backup'),t('backupSub'))+
+    tile('settings',IC.setting,t('setting'),t('settingSub'))+'</div>';
+  screen(html,'home',f.name,false);
+}
+
+/* ========================================================= ENTRY MENU */
+function scrEntryMenu(){
+  EDIT_TXN=null;
+  var g='<div class="tilegrid">'+
+    tile('e/payment',IC.entry,t('payment'),t('payTo'))+
+    tile('e/receipt',IC.entry,t('receipt'),t('recvFrom'))+
+    tile('e/purchase',IC.entry,t('purchase'),t('exp'))+
+    tile('e/sale',IC.sow,t('sale'),t('income'))+
+    tile('e/labour',IC.reg,t('labour'),t('exp'))+
+    tile('e/cropend',IC.sow,t('cropend'),t('stock'))+
+    tile('e/transfer',IC.entry,t('transfer'),'')+
+    tile('e/stock',IC.report,t('stock'),t('remaining'))+'</div>'+
+    '<div style="height:10px"></div><button class="btn sec" onclick="go(\'txns\')">'+esc(t('txnlist'))+'</button>';
+  screen(g,'home',t('entry'),true);
+}
+
+/* ---------- common form wrapper ---------- */
+function saveTxn(f,txn){
+  if(EDIT_TXN){ f.txns=f.txns.filter(function(x){return x.id!==EDIT_TXN.id;}); txn.id=EDIT_TXN.id; }
+  else txn.id=E.uid(txn.type);
+  f.txns.push(txn); save(); EDIT_TXN=null; toast(t('save')+' ✓'); go('entry');
+}
+function E_(){ return EDIT_TXN||{}; }
+
+/* ---------- PAYMENT ---------- */
+function formPayment(){
+  var f=curFirm(),e=E_();
+  var html='<div class="card">'+
+   '<label>'+esc(t('date'))+'</label>'+dateF('d_date',e.date)+
+   sel(t('from')+' ('+t('chooseAcc')+')','d_acc',accOptions(f,e.fromAccId))+
+   '<label>'+esc(t('payTo'))+'</label><div class="seg"><button type="button" id="k_party" class="on" onclick="segPay(\'party\')">'+esc(t('party'))+'</button><button type="button" id="k_ledger" onclick="segPay(\'ledger\')">'+esc(t('ledger'))+' ('+esc(t('exp'))+')</button></div>'+
+   '<div id="pv_party">'+sel(t('party'),'d_party',partyOptions(f,e.partyId,null,true))+'</div>'+
+   '<div id="pv_ledger" style="display:none">'+sel(t('ledger'),'d_ledger',ledgerOptions(f,e.ledgerId,'exp'))+
+     sel(t('plot')+' / '+t('crop'),'d_sow',sowOptions(f,e.sowingId,true))+'</div>'+
+   fld(t('amount'),'d_amt','number',e.amount)+
+   fld(t('remark'),'d_rem','text',e.remark)+
+   '<small class="hint">'+esc(t('compHint'))+'</small><div style="height:12px"></div>'+
+   '<button class="btn" onclick="savePayment()">'+esc(t('save'))+'</button></div>';
+  screen(html,null,t('payment'),true);
+  if(e.toKind==='ledger') segPay('ledger');
+}
+function segPay(k){ document.getElementById('k_party').className=k==='party'?'on':''; document.getElementById('k_ledger').className=k==='ledger'?'on':''; document.getElementById('pv_party').style.display=k==='party'?'':'none'; document.getElementById('pv_ledger').style.display=k==='ledger'?'':'none'; window._payKind=k; }
+function savePayment(){
+  var f=curFirm(); var k=window._payKind||'party'; var amt=numv('d_amt'); if(amt<=0){toast(t('amount')+' '+t('reqd'));return;}
+  var txn={type:'payment',date:val('d_date'),fromAccId:val('d_acc'),toKind:k,amount:amt,remark:val('d_rem')};
+  if(k==='party'){ if(!val('d_party')){toast(t('party')+' '+t('reqd'));return;} txn.partyId=val('d_party'); }
+  else { if(!val('d_ledger')){toast(t('ledger')+' '+t('reqd'));return;} txn.ledgerId=val('d_ledger'); var s=val('d_sow'); if(!s||s===''){toast(t('plotCropReq'));return;} txn.sowingId=s; }
+  saveTxn(f,txn);
+}
+
+/* ---------- RECEIPT ---------- */
+function formReceipt(){
+  var f=curFirm(),e=E_();
+  var html='<div class="card">'+
+   '<label>'+esc(t('date'))+'</label>'+dateF('d_date',e.date)+
+   sel(t('to')+' ('+t('chooseAcc')+')','d_acc',accOptions(f,e.toAccId))+
+   '<label>'+esc(t('recvFrom'))+'</label><div class="seg"><button type="button" id="k_party" class="on" onclick="segRc(\'party\')">'+esc(t('party'))+'</button><button type="button" id="k_ledger" onclick="segRc(\'ledger\')">'+esc(t('ledger'))+' ('+esc(t('income'))+')</button></div>'+
+   '<div id="pv_party">'+sel(t('party'),'d_party',partyOptions(f,e.partyId,null,true))+'</div>'+
+   '<div id="pv_ledger" style="display:none">'+sel(t('ledger'),'d_ledger',ledgerOptions(f,e.ledgerId,'income'))+
+     sel(t('plot')+' / '+t('crop'),'d_sow',sowOptions(f,e.sowingId,true))+'</div>'+
+   fld(t('amount'),'d_amt','number',e.amount)+ fld(t('remark'),'d_rem','text',e.remark)+
+   '<div style="height:12px"></div><button class="btn" onclick="saveReceipt()">'+esc(t('save'))+'</button></div>';
+  screen(html,null,t('receipt'),true);
+  if(e.fromKind==='ledger') segRc('ledger');
+}
+function segRc(k){ document.getElementById('k_party').className=k==='party'?'on':''; document.getElementById('k_ledger').className=k==='ledger'?'on':''; document.getElementById('pv_party').style.display=k==='party'?'':'none'; document.getElementById('pv_ledger').style.display=k==='ledger'?'':'none'; window._rcKind=k; }
+function saveReceipt(){
+  var f=curFirm(); var k=window._rcKind||'party'; var amt=numv('d_amt'); if(amt<=0){toast(t('amount')+' '+t('reqd'));return;}
+  var txn={type:'receipt',date:val('d_date'),toAccId:val('d_acc'),fromKind:k,amount:amt,remark:val('d_rem')};
+  if(k==='party'){ if(!val('d_party')){toast(t('party')+' '+t('reqd'));return;} txn.partyId=val('d_party'); }
+  else { if(!val('d_ledger')){toast(t('ledger')+' '+t('reqd'));return;} txn.ledgerId=val('d_ledger'); var s=val('d_sow'); if(!s){toast(t('plotCropReq'));return;} txn.sowingId=s; }
+  saveTxn(f,txn);
+}
+
+/* ---------- PURCHASE ---------- */
+function formPurchase(){
+  var f=curFirm(),e=E_();
+  var html='<div class="card">'+
+   '<label>'+esc(t('date'))+'</label>'+dateF('d_date',e.date)+
+   '<label>'+esc(t('from'))+'</label><div class="seg"><button type="button" id="k_acc" class="on" onclick="segPu(\'account\')">'+esc(t('chooseAcc'))+'</button><button type="button" id="k_ven" onclick="segPu(\'vendor\')">'+esc(t('vendor'))+'</button></div>'+
+   '<div id="pv_acc">'+sel(t('account'),'d_acc',accOptions(f,e.accId))+'</div>'+
+   '<div id="pv_ven" style="display:none">'+sel(t('vendor'),'d_ven',partyOptions(f,e.vendorId,'vendor'))+'</div>'+
+   sel(t('ledger')+' ('+t('exp')+')','d_ledger',ledgerOptions(f,e.ledgerId,'exp'))+
+   sel(t('plot')+' / '+t('crop'),'d_sow',sowOptions(f,e.sowingId,true))+
+   '<div class="grid2">'+fld(t('qty'),'d_qty','number',e.qty)+fld(t('rate'),'d_rate','number',e.rate)+'</div>'+
+   fld(t('amount'),'d_amt','number',e.amount)+ fld(t('remark'),'d_rem','text',e.remark)+
+   '<small class="hint">'+esc(t('compHint'))+'</small><div style="height:12px"></div><button class="btn" onclick="savePurchase()">'+esc(t('save'))+'</button></div>';
+  screen(html,null,t('purchase'),true);
+  if(e.payKind==='vendor') segPu('vendor');
+  autoAmt('d_qty','d_rate','d_amt');
+}
+function segPu(k){ document.getElementById('k_acc').className=k==='account'?'on':''; document.getElementById('k_ven').className=k==='vendor'?'on':''; document.getElementById('pv_acc').style.display=k==='account'?'':'none'; document.getElementById('pv_ven').style.display=k==='vendor'?'':'none'; window._puKind=k; }
+function savePurchase(){
+  var f=curFirm(); var k=window._puKind||'account'; var amt=numv('d_amt'); if(amt<=0){toast(t('amount')+' '+t('reqd'));return;}
+  if(!val('d_ledger')){toast(t('ledger')+' '+t('reqd'));return;}
+  var s=val('d_sow'); if(!s){toast(t('plotCropReq'));return;}
+  var txn={type:'purchase',date:val('d_date'),payKind:k,ledgerId:val('d_ledger'),qty:numv('d_qty'),rate:numv('d_rate'),amount:amt,sowingId:s,remark:val('d_rem')};
+  if(k==='account') txn.accId=val('d_acc'); else { if(!val('d_ven')){toast(t('vendor')+' '+t('reqd'));return;} txn.vendorId=val('d_ven'); }
+  saveTxn(f,txn);
+}
+
+/* ---------- SALE ---------- */
+function formSale(){
+  var f=curFirm(),e=E_();
+  // what to sell: running crops + open lots
+  var runs=E.activeSowings(f).map(function(s){return '<option value="sow:'+s.id+'">'+esc(t('runningCrop')+': '+E.sowingLabel(f,s))+'</option>';}).join('');
+  var los=E.openLots(f).map(function(l){var s=E.sowing(f,l.sowingId);return '<option value="lot:'+l.id+'">'+esc(t('stockLot')+': '+l.name+' — '+(s?E.sowingLabel(f,s):'')+' · '+t('remainLot')+' '+l.remainQty+' / '+money(l.remainAmt))+'</option>';}).join('');
+  var selV=''; if(e.lotId) selV='lot:'+e.lotId; else if(e.sowingId) selV='sow:'+e.sowingId;
+  var html='<div class="card">'+
+   '<label>'+esc(t('date'))+'</label>'+dateF('d_date',e.date)+
+   '<label>'+esc(t('sellWhat'))+'</label><select id="d_what" onchange="saleWhat()"><option value="">—</option>'+runs+los+'</select>'+
+   '<div id="lotbox" style="display:none"><label>'+esc(t('sold'))+'</label><div class="seg"><button type="button" id="w_part" class="on" onclick="saleWhole(false)">'+esc(t('partial'))+'</button><button type="button" id="w_whole" onclick="saleWhole(true)">'+esc(t('whole'))+'</button></div></div>'+
+   '<label>'+esc(t('to'))+'</label><div class="seg"><button type="button" id="k_acc" class="on" onclick="segSa(\'account\')">'+esc(t('chooseAcc'))+'</button><button type="button" id="k_ven" onclick="segSa(\'vendor\')">'+esc(t('vendor'))+'</button></div>'+
+   '<div id="pv_acc">'+sel(t('account'),'d_acc',accOptions(f,e.accId))+'</div>'+
+   '<div id="pv_ven" style="display:none">'+sel(t('vendor'),'d_ven',partyOptions(f,e.vendorId,'vendor'))+'</div>'+
+   sel(t('ledger')+' ('+t('income')+')','d_ledger',ledgerOptions(f,e.ledgerId,'income'))+
+   '<div class="grid2">'+fld(t('qty'),'d_qty','number',e.qty)+fld(t('rate'),'d_rate','number',e.rate)+'</div>'+
+   fld(t('amount'),'d_amt','number',e.amount)+ fld(t('remark'),'d_rem','text',e.remark)+
+   '<div style="height:12px"></div><button class="btn" onclick="saveSale()">'+esc(t('save'))+'</button></div>';
+  screen(html,null,t('sale'),true);
+  if(selV){ document.getElementById('d_what').value=selV; saleWhat(); }
+  if(e.recvKind==='vendor') segSa('vendor');
+  window._whole=!!e.whole;
+  autoAmt('d_qty','d_rate','d_amt');
+}
+function saleWhat(){ var v=val('d_what'); var isLot=(v.indexOf('lot:')===0); document.getElementById('lotbox').style.display=isLot?'':'none'; if(!isLot){ window._whole=false; } else { // default partial
+    var wp=document.getElementById('w_part'),ww=document.getElementById('w_whole'); if(wp&&ww){ wp.className='on'; ww.className=''; } window._whole=false; } }
+function saleWhole(on){ window._whole=on; var wp=document.getElementById('w_part'),ww=document.getElementById('w_whole'); if(wp&&ww){ wp.className=on?'':'on'; ww.className=on?'on':''; }
+  if(on){ var f=curFirm(); var v=val('d_what'); if(v.indexOf('lot:')===0){ var l=E.lotById(f,v.slice(4)); if(l){ var q=document.getElementById('d_qty'),r=document.getElementById('d_rate'),a=document.getElementById('d_amt'); if(q)q.value=l.remainQty; if(r)r.value=l.rate; if(a)a.value=l.remainAmt; } } }
+}
+function segSa(k){ document.getElementById('k_acc').className=k==='account'?'on':''; document.getElementById('k_ven').className=k==='vendor'?'on':''; document.getElementById('pv_acc').style.display=k==='account'?'':'none'; document.getElementById('pv_ven').style.display=k==='vendor'?'':'none'; window._saKind=k; }
+function saveSale(){
+  var f=curFirm(); var amt=numv('d_amt'); if(amt<=0){toast(t('amount')+' '+t('reqd'));return;}
+  var w=val('d_what'); if(!w){toast(t('sellWhat')+' '+t('reqd'));return;}
+  var k=window._saKind||'account';
+  var txn={type:'sale',date:val('d_date'),recvKind:k,ledgerId:val('d_ledger'),qty:numv('d_qty'),rate:numv('d_rate'),amount:amt,remark:val('d_rem')};
+  if(!txn.ledgerId){toast(t('ledger')+' '+t('reqd'));return;}
+  if(w.indexOf('lot:')===0){ var lid=w.slice(4); var l=E.lotById(f,lid); txn.lotId=lid; txn.sowingId=l.sowingId; txn.whole=!!window._whole; }
+  else { txn.sowingId=w.slice(4); }
+  if(k==='account') txn.accId=val('d_acc'); else { if(!val('d_ven')){toast(t('vendor')+' '+t('reqd'));return;} txn.vendorId=val('d_ven'); }
+  saveTxn(f,txn);
+}
+
+/* ---------- LABOUR ---------- */
+function formLabour(){
+  var f=curFirm(),e=E_();
+  var html='<div class="card">'+
+   '<label>'+esc(t('date'))+'</label>'+dateF('d_date',e.date)+
+   sel(t('labour'),'d_lab',partyOptions(f,e.labourId,'labour'))+
+   sel(t('ledger')+' ('+t('exp')+')','d_ledger',ledgerOptions(f,e.ledgerId,'exp'))+
+   sel(t('plot')+' / '+t('crop'),'d_sow',sowOptions(f,e.sowingId,true))+
+   '<label>'+esc(t('type'))+'</label><div class="seg"><button type="button" id="m_fix" class="on" onclick="segLab(\'fixed\')">'+esc(t('fixed'))+'</button><button type="button" id="m_con" onclick="segLab(\'contract\')">'+esc(t('contract'))+'</button></div>'+
+   '<div id="conbox" style="display:none"><div class="grid2">'+fld(t('qty'),'d_qty','number',e.qty)+fld(t('rate'),'d_rate','number',e.rate)+'</div></div>'+
+   fld(t('amount'),'d_amt','number',e.amount)+ fld(t('remark'),'d_rem','text',e.remark)+
+   '<div style="height:12px"></div><button class="btn" onclick="saveLabour()">'+esc(t('save'))+'</button></div>';
+  screen(html,null,t('labour'),true);
+  if(e.mode==='contract') segLab('contract');
+  autoAmt('d_qty','d_rate','d_amt');
+}
+function segLab(m){ document.getElementById('m_fix').className=m==='fixed'?'on':''; document.getElementById('m_con').className=m==='contract'?'on':''; document.getElementById('conbox').style.display=m==='contract'?'':'none'; window._labMode=m; }
+function saveLabour(){
+  var f=curFirm(); var amt=numv('d_amt'); if(amt<=0){toast(t('amount')+' '+t('reqd'));return;}
+  if(!val('d_lab')){toast(t('labour')+' '+t('reqd'));return;}
+  var s=val('d_sow'); if(!s){toast(t('plotCropReq'));return;}
+  var txn={type:'labour',date:val('d_date'),labourId:val('d_lab'),ledgerId:val('d_ledger'),mode:window._labMode||'fixed',qty:numv('d_qty'),rate:numv('d_rate'),amount:amt,sowingId:s,remark:val('d_rem')};
+  saveTxn(f,txn);
+}
+
+/* ---------- CROP END ---------- */
+function formCropEnd(){
+  var f=curFirm(),e=E_();
+  var acts=E.activeSowings(f);
+  if(!acts.length){ screen('<div class="card">'+esc(t('nothingHere'))+'</div>',null,t('cropend'),true); return; }
+  var html='<div class="card">'+
+   '<label>'+esc(t('date'))+'</label>'+dateF('d_date',e.date)+
+   sel(t('plot')+' / '+t('crop'),'d_sow','<option value="">—</option>'+acts.map(function(s){return '<option value="'+s.id+'">'+esc(E.sowingLabel(f,s))+'</option>';}).join(''))+
+   '<div class="grid2">'+fld(t('production')+' '+t('qty'),'d_qty','number',e.qty)+fld(t('rate'),'d_rate','number',e.rate)+'</div>'+
+   fld(t('estAmt'),'d_amt','number',e.amount)+
+   fld(t('lotName'),'d_lot','text',e.lotName)+
+   fld(t('remark'),'d_rem','text',e.remark)+
+   '<hr style="border:none;border-top:1px solid var(--border);margin:12px 0">'+
+   fld(t('newPlotSize'),'d_psize','number',e.newPlotSize)+
+   '<small class="hint">'+esc(t('plotSizeHint'))+'</small>'+
+   '<div style="height:12px"></div><button class="btn" onclick="saveCropEnd()">'+esc(t('save'))+'</button></div>';
+  screen(html,null,t('cropend'),true);
+  autoAmt('d_qty','d_rate','d_amt');
+}
+function saveCropEnd(){
+  var f=curFirm(); var s=val('d_sow'); if(!s){toast(t('crop')+' '+t('reqd'));return;}
+  var amt=numv('d_amt'); if(amt<=0){toast(t('estAmt')+' '+t('reqd'));return;}
+  var lot=(val('d_lot')||'').trim(); if(!lot){toast(t('lotName')+' '+t('reqd'));return;}
+  var dup=f.txns.some(function(x){return x.type==='cropend'&&(x.lotName||'').toLowerCase()===lot.toLowerCase()&&(!EDIT_TXN||x.id!==EDIT_TXN.id);});
+  if(dup){toast(t('lotName')+' — '+t('usedWarn'));return;}
+  var sow=E.sowing(f,s);
+  // optional: reduce plot size if land was sold
+  var ps=val('d_psize'); var newPlotSize=(ps===''||ps==null)?null:E.num(ps);
+  if(newPlotSize!=null){ var pl=E.plot(f,sow.plotId);
+    if(pl){ var usedAfter=0; f.sowings.forEach(function(x){ if(x.plotId===pl.id&&!x.endDate&&x.id!==s.id) usedAfter+=x.area; });
+      if(newPlotSize < usedAfter-0.0001){ toast(t('sizeUsedErr')); return; }
+      if(newPlotSize > pl.size+0.0001){ toast(t('increaseOnly')); return; } } }
+  var txn={type:'cropend',date:val('d_date'),sowingId:s,qty:numv('d_qty'),rate:numv('d_rate'),amount:amt,lotName:lot,remark:val('d_rem'),newPlotSize:newPlotSize};
+  if(!EDIT_TXN){ sow.endDate=val('d_date'); if(newPlotSize!=null){ var p2=E.plot(f,sow.plotId); if(p2) p2.size=newPlotSize; } }
+  saveTxn(f,txn);
+}
+
+/* ---------- TRANSFER ---------- */
+function formTransfer(){
+  var f=curFirm(),e=E_();
+  var html='<div class="card">'+
+   '<label>'+esc(t('date'))+'</label>'+dateF('d_date',e.date)+
+   sel(t('from'),'d_from',accOptions(f,e.fromAccId))+
+   sel(t('to'),'d_to',accOptions(f,e.toAccId))+
+   fld(t('amount'),'d_amt','number',e.amount)+ fld(t('remark'),'d_rem','text',e.remark)+
+   '<div style="height:12px"></div><button class="btn" onclick="saveTransfer()">'+esc(t('save'))+'</button></div>';
+  screen(html,null,t('transfer'),true);
+}
+function saveTransfer(){
+  var f=curFirm(); var amt=numv('d_amt'); if(amt<=0){toast(t('amount')+' '+t('reqd'));return;}
+  if(val('d_from')===val('d_to')){toast('From ≠ To');return;}
+  saveTxn(f,{type:'transfer',date:val('d_date'),fromAccId:val('d_from'),toAccId:val('d_to'),amount:amt,remark:val('d_rem')});
+}
+
+/* ---------- auto amount = qty*rate ---------- */
+function autoAmt(q,r,a){
+  function calc(){ var qv=numv(q),rv=numv(r); if(qv>0&&rv>0){ document.getElementById(a).value=E.r2(qv*rv); } }
+  var qe=document.getElementById(q),re=document.getElementById(r);
+  if(qe) qe.addEventListener('input',calc); if(re) re.addEventListener('input',calc);
+}
+
+/* ---------- STOCK / LOTS ---------- */
+function scrStock(){
+  var f=curFirm(); var ls=E.lots(f);
+  var html='<div class="card"><div class="list">';
+  if(!ls.length) html+='<div class="muted">'+esc(t('nothingHere'))+'</div>';
+  ls.forEach(function(l){ var s=E.sowing(f,l.sowingId); var rem=E.r2(l.amount-l.soldAmt);
+    html+='<div class="it"><div class="main"><div class="l1">'+esc(l.name)+(l.closed?' <span class="pill">'+esc(t('settled'))+'</span>':'')+'</div><div class="l2">'+esc(s?E.sowingLabel(f,s):'')+' · '+esc(t('estAmt'))+' '+money(l.amount)+' · '+esc(t('sold'))+' '+money(l.soldAmt)+'</div></div>'+
+      (l.closed?'':'<button class="btn sm sec" onclick="leftover(\''+l.id+'\')">'+esc(t('closeLeft'))+'</button>')+'</div>';
+  });
+  html+='</div></div>';
+  screen(html,null,t('stock'),true);
+}
+function leftover(lotId){
+  var f=curFirm(); var l=E.lotById(f,lotId);
+  var reason=prompt(t('leftReason')+' ('+t('seed')+'/'+t('homeU')+'/'+t('spoil')+')', t('seed'));
+  if(reason===null) return;
+  var amtS=prompt(t('enterAmt'),'0'); if(amtS===null) return; var amt=E.num(amtS);
+  f.txns.push({id:E.uid('leftover'),type:'leftover',date:today(),sowingId:l.sowingId,lotId:lotId,amount:amt,reason:reason,remark:'leftover'});
+  save(); toast(t('save')+' ✓'); scrStock();
+}
+
+/* ========================================================= TXN LIST */
+function txnDesc(f,x){
+  switch(x.type){
+    case 'payment': return t('payment')+' → '+(x.toKind==='party'?(E.party(f,x.partyId)||{}).name:(E.ledger(f,x.ledgerId)||{}).name);
+    case 'receipt': return t('receipt')+' ← '+(x.fromKind==='party'?(E.party(f,x.partyId)||{}).name:(E.ledger(f,x.ledgerId)||{}).name);
+    case 'purchase': return t('purchase')+' · '+((E.ledger(f,x.ledgerId)||{}).name||'');
+    case 'sale': return t('sale')+' · '+((E.ledger(f,x.ledgerId)||{}).name||'');
+    case 'labour': return t('labour')+' · '+((E.party(f,x.labourId)||{}).name||'');
+    case 'cropend': return t('cropend')+' · '+(x.lotName||'');
+    case 'transfer': return t('transfer');
+    case 'leftover': return t('closeLeft');
+  }
+  return x.type;
+}
+function scrTxns(){
+  var f=curFirm(); var list=f.txns.slice().sort(function(a,b){return (b.date||'').localeCompare(a.date||'')|| (b.id>a.id?1:-1);});
+  var html='<div class="card"><div class="list">';
+  if(!list.length) html+='<div class="muted">'+esc(t('nothingHere'))+'</div>';
+  list.slice(0,400).forEach(function(x){
+    var neg=(x.type==='payment'||x.type==='purchase'||x.type==='labour');
+    var locked=txnLocked(f,x);
+    var btns='<button class="btn sm sec" style="margin-top:4px;padding:5px 9px" onclick="viewTxn(\''+x.id+'\')">'+esc(t('view'))+'</button>';
+    if(!locked) btns+=' <button class="btn sm sec" style="margin-top:4px;padding:5px 9px" onclick="editTxn(\''+x.id+'\')">'+esc(t('edit'))+'</button>'+
+      ' <button class="btn sm danger" style="margin-top:4px;padding:5px 9px" onclick="delTxn(\''+x.id+'\')">'+esc(t('del'))+'</button>';
+    html+='<div class="it'+(locked?' locked':'')+'"><div class="main"><div class="l1">'+esc(txnDesc(f,x))+(locked?' <span class="lockpill">'+esc(t('locked'))+'</span>':'')+'</div><div class="l2">'+esc(x.date||'')+(x.remark?' · '+esc(x.remark):'')+'</div></div>'+
+     '<div style="text-align:right"><div class="amt '+(neg?'neg':'pos')+'">'+money(x.amount)+'</div><div class="btnrow">'+btns+'</div></div></div>';
+  });
+  html+='</div></div>';
+  screen(html,'home',t('txnlist'),true);
+}
+// entry belongs to a COMPLETED crop -> view only. Cropend itself & stock-lot sales stay editable (so crop can be reopened / stock kept selling).
+function txnLocked(f,x){
+  if(x.type==='cropend') return false;
+  if(x.type==='sale'&&x.lotId) return false;
+  var sid=x.sowingId; if(!sid||sid==='other') return false;
+  var s=E.sowing(f,sid); return !!(s&&s.endDate);
+}
+function viewTxn(id){ var f=curFirm(); var x=E.byId(f.txns,id); if(!x) return;
+  var L=[]; function row(k,v){ if(v===''||v==null) return; L.push('<div class="dit"><div class="dm"><div class="d2">'+esc(k)+'</div><div class="d1">'+esc(v)+'</div></div></div>'); }
+  var acc=function(id){var a=E.account(f,id);return a?a.name:'';}, pty=function(id){var p=E.party(f,id);return p?p.name:'';}, lg=function(id){var l=E.ledger(f,id);return l?l.name:'';};
+  var sw=function(id){var s=E.sowing(f,id);return s?E.sowingLabel(f,s):(id==='other'?t('other'):'');};
+  row(t('type'),t(x.type)||x.type); row(t('date'),x.date); row(t('amount'),money(x.amount));
+  if(x.fromAccId) row(t('from'),acc(x.fromAccId)); if(x.toAccId) row(t('to'),acc(x.toAccId)); if(x.accId) row(t('account'),acc(x.accId));
+  if(x.partyId) row(t('party'),pty(x.partyId)); if(x.vendorId) row(t('vendor'),pty(x.vendorId)); if(x.labourId) row(t('labour'),pty(x.labourId));
+  if(x.ledgerId) row(t('ledger'),lg(x.ledgerId)); if(x.sowingId) row(t('plot')+'/'+t('crop'),sw(x.sowingId));
+  if(x.lotId){ var lt=E.lotById(f,x.lotId); row(t('stockLot'),lt?lt.name:''); if(x.whole) row(t('sold'),t('whole')); }
+  if(x.qty) row(t('qty'),E.r2(x.qty)); if(x.rate) row(t('rate'),E.r2(x.rate));
+  if(x.lotName) row(t('lotName'),x.lotName); if(x.remark) row(t('remark'),x.remark);
+  var locked=txnLocked(f,x);
+  var html='<div class="card"><div class="h2">'+esc(txnDesc(f,x))+(locked?' <span class="lockpill">'+esc(t('locked'))+'</span>':'')+'</div><div class="det">'+L.join('')+'</div>'+
+    (locked?'<small class="hint" style="margin-top:8px">'+esc(t('viewOnly'))+'</small>':'')+'</div>';
+  screen(html,'home',t('view'),true);
+}
+function delTxn(id){ if(!confirm(t('delConfirm'))) return; var f=curFirm(); var x=E.byId(f.txns,id);
+  if(x&&x.type==='cropend'){ var sow=E.sowing(f,x.sowingId); if(sow) sow.endDate=null; }
+  f.txns=f.txns.filter(function(y){return y.id!==id;}); save(); toast(t('del')+' ✓'); scrTxns();
+}
+function editTxn(id){ var f=curFirm(); EDIT_TXN=E.byId(f.txns,id); if(!EDIT_TXN) return;
+  var m={payment:'e/payment',receipt:'e/receipt',purchase:'e/purchase',sale:'e/sale',labour:'e/labour',cropend:'e/cropend',transfer:'e/transfer'};
+  if(m[EDIT_TXN.type]) go(m[EDIT_TXN.type]); else { EDIT_TXN=null; toast('—'); }
+}
+
+/* ========================================================= REGISTRATION */
+function scrRegMenu(){
+  EDIT_M=null; SOW_EDIT=null;
+  var g='<div class="tilegrid">'+
+    tile('m/plot',IC.sow,t('plot'),'')+
+    tile('m/crop',IC.sow,t('crop'),'')+
+    tile('m/party',IC.reg,t('party'),'')+
+    tile('m/ledger',IC.report,t('ledger'),'')+
+    tile('m/account',IC.entry,t('account'),'')+
+    tile('m/firm',IC.setting,t('firm'),'')+'</div>';
+  screen(g,'home',t('reg'),true);
+}
+function masterList(items,render){ var h='<div class="list">'; if(!items.length)h+='<div class="muted">'+esc(t('nothingHere'))+'</div>'; items.forEach(function(it){h+=render(it);}); return h+'</div>'; }
+
+function uOpt(list,cur){ return list.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===cur?' selected':'')+'>'+o[1]+'</option>';}).join(''); }
+function editBtns(kind,id){ return '<button class="btn sm sec" onclick="editMaster(\''+kind+'\',\''+id+'\')">'+esc(t('edit'))+'</button> <button class="btn sm danger" onclick="delMaster(\''+kind+'\',\''+id+'\')">'+esc(t('del'))+'</button>'; }
+function cancelBtn(fn){ return ' <button class="btn sec" onclick="EDIT_M=null;'+fn+'()">'+esc(t('cancel'))+'</button>'; }
+
+function mPlot(){ var f=curFirm(); var e=curEdit('plot');
+  var units=[['bigha','बीघा'],['acre','एकड़'],['hectare','हेक्टेयर']];
+  var html='<div class="card"><div class="h2">'+esc(e?t('edit'):t('add'))+' '+esc(t('plot'))+'</div>'+
+   fld(t('plotName'),'x_name',null,e?e.name:'')+'<div class="grid2">'+fld(t('size'),'x_size','number',e?e.size:'')+
+   sel(t('unit'),'x_unit',uOpt(units,e?e.unit:'bigha'))+'</div>'+
+   (e?'<small class="hint">'+esc(t('sizeUsedErr'))+' ('+esc(t('freeArea'))+': '+E.plotUsedArea(f,e.id)+' '+esc(t('area'))+' used)</small>':'')+
+   '<div style="height:10px"></div><button class="btn" onclick="upsertPlot()">'+esc(t('save'))+'</button>'+(e?cancelBtn('mPlot'):'')+'</div>'+
+   '<div class="card">'+masterList(f.plots,function(p){ return '<div class="it"><div class="main"><div class="l1">'+esc(p.name)+'</div><div class="l2">'+p.size+' '+esc(p.unit)+' · '+esc(t('freeArea'))+' '+E.plotFreeArea(f,p.id)+'</div></div>'+editBtns('plot',p.id)+'</div>';})+'</div>';
+  screen(html,'home',t('plot'),true);
+}
+function upsertPlot(){ var f=curFirm(); var n=val('x_name').trim(); if(!n){toast(t('reqd'));return;} var sz=E.num(val('x_size')); var e=curEdit('plot');
+  if(e){ if(sz < E.plotUsedArea(f,e.id)-0.0001){ toast(t('sizeUsedErr')); return; } e.name=n; e.size=sz; e.unit=val('x_unit'); EDIT_M=null; }
+  else f.plots.push({id:E.uid('p'),name:n,size:sz,unit:val('x_unit')});
+  save(); mPlot(); }
+
+function mParty(){ var f=curFirm(); var e=curEdit('party');
+  var tyUsed=e&&usedInTxns(f,e.id);
+  var html='<div class="card"><div class="h2">'+esc(e?t('edit'):t('add'))+' '+esc(t('party'))+'</div>'+
+   fld(t('name'),'x_name',null,e?e.name:'')+'<div class="grid2">'+fld(t('contact'),'x_con',null,e?e.contact:'')+fld(t('city'),'x_city',null,e?e.city:'')+'</div>'+
+   sel(t('type'),'x_type',uOpt([['vendor',esc(t('vendor'))],['labour',esc(t('labour'))]],e?e.type:'vendor'),tyUsed?'disabled':'')+
+   '<div class="grid2">'+fld(t('opening')+' '+t('amount'),'x_oa','number',e?e.openAmt:0)+sel(t('type'),'x_od',uOpt([['payable',esc(t('youPay'))],['receivable',esc(t('youGet'))]],e?e.openDir:'payable'))+'</div>'+
+   '<div style="height:10px"></div><button class="btn" onclick="upsertParty()">'+esc(t('save'))+'</button>'+(e?cancelBtn('mParty'):'')+'</div>'+
+   '<div class="card">'+masterList(f.parties,function(p){var b=E.partyBalance(f,p.id);return '<div class="it"><div class="main"><div class="l1">'+esc(p.name)+' <span class="pill">'+esc(p.type==='vendor'?t('vendor'):t('labour'))+'</span></div><div class="l2">'+(b>0?esc(t('youOwe'))+' '+money(b):(b<0?esc(t('owesYou'))+' '+money(-b):esc(t('settled'))))+'</div></div>'+editBtns('party',p.id)+'</div>';})+'</div>';
+  screen(html,'home',t('party'),true);
+}
+function upsertParty(){ var f=curFirm(); var n=val('x_name').trim(); if(!n){toast(t('reqd'));return;} var e=curEdit('party');
+  if(e){ e.name=n; e.contact=val('x_con'); e.city=val('x_city'); if(!usedInTxns(f,e.id)) e.type=val('x_type'); e.openAmt=E.num(val('x_oa')); e.openDir=val('x_od'); EDIT_M=null; }
+  else f.parties.push({id:E.uid('pt'),name:n,contact:val('x_con'),city:val('x_city'),type:val('x_type'),openAmt:E.num(val('x_oa')),openDir:val('x_od')});
+  save(); mParty(); }
+
+function cropUsed(f,id){ return f.sowings.some(function(s){return s.cropId===id;}); }
+function mCrop(){ var f=curFirm(); var e=curEdit('crop'); var uLock=e&&cropUsed(f,e.id);
+  var html='<div class="card"><div class="h2">'+esc(e?t('edit'):t('add'))+' '+esc(t('crop'))+'</div>'+
+   fld(t('name'),'x_name',null,e?e.name:'')+sel(t('unit'),'x_unit',uOpt([['qtl','क्विंटल (Qtl)'],['kgs','किलो (Kgs)'],['mt','टन (MT)']],e?e.unit:'qtl'),uLock?'disabled':'')+
+   (uLock?'<small class="hint">'+esc(t('unitLocked'))+'</small>':'')+
+   '<div style="height:10px"></div><button class="btn" onclick="upsertCrop()">'+esc(t('save'))+'</button>'+(e?cancelBtn('mCrop'):'')+'</div>'+
+   '<div class="card">'+masterList(f.crops,function(c){return '<div class="it"><div class="main"><div class="l1">'+esc(c.name)+'</div><div class="l2">'+esc(c.unit)+'</div></div>'+editBtns('crop',c.id)+'</div>';})+'</div>';
+  screen(html,'home',t('crop'),true);
+}
+function upsertCrop(){ var f=curFirm(); var n=val('x_name').trim(); if(!n){toast(t('reqd'));return;} var e=curEdit('crop');
+  if(e){ e.name=n; if(!cropUsed(f,e.id)) e.unit=val('x_unit'); EDIT_M=null; }
+  else f.crops.push({id:E.uid('c'),name:n,unit:val('x_unit')});
+  save(); mCrop(); }
+
+function mLedger(){ var f=curFirm(); var e=curEdit('ledger'); var tyLock=e&&usedInTxns(f,e.id);
+  var html='<div class="card"><div class="h2">'+esc(e?t('edit'):t('add'))+' '+esc(t('ledger'))+'</div>'+
+   fld(t('name'),'x_name',null,e?e.name:'')+sel(t('type'),'x_type',uOpt([['exp',esc(t('exp'))],['income',esc(t('income'))]],e?e.type:'exp'),tyLock?'disabled':'')+
+   '<div style="height:10px"></div><button class="btn" onclick="upsertLedger()">'+esc(t('save'))+'</button>'+(e?cancelBtn('mLedger'):'')+'</div>'+
+   '<div class="card">'+masterList(f.ledgers,function(l){return '<div class="it"><div class="main"><div class="l1">'+esc(l.name)+' <span class="pill">'+esc(l.type==='exp'?t('exp'):t('income'))+'</span></div></div>'+editBtns('ledger',l.id)+'</div>';})+'</div>';
+  screen(html,'home',t('ledger'),true);
+}
+function upsertLedger(){ var f=curFirm(); var n=val('x_name').trim(); if(!n){toast(t('reqd'));return;} var e=curEdit('ledger');
+  if(e){ e.name=n; if(!usedInTxns(f,e.id)) e.type=val('x_type'); EDIT_M=null; }
+  else f.ledgers.push({id:E.uid('lg'),name:n,type:val('x_type')});
+  save(); mLedger(); }
+
+function mAccount(){ var f=curFirm(); var e=curEdit('account'); var tyLock=e&&usedInTxns(f,e.id);
+  var html='<div class="card"><div class="h2">'+esc(e?t('edit'):t('add'))+' '+esc(t('account'))+'</div>'+
+   fld(t('name'),'x_name',null,e?e.name:'')+'<div class="grid2">'+sel(t('type'),'x_type',uOpt([['cash',esc(t('cash'))],['bank',esc(t('bank'))]],e?e.type:'cash'),tyLock?'disabled':'')+fld(t('opening'),'x_op','number',e?e.opening:0)+'</div>'+
+   '<div style="height:10px"></div><button class="btn" onclick="upsertAccount()">'+esc(t('save'))+'</button>'+(e?cancelBtn('mAccount'):'')+'</div>'+
+   '<div class="card">'+masterList(f.accounts,function(a){return '<div class="it"><div class="main"><div class="l1">'+esc(a.name)+'</div><div class="l2">'+esc(a.type==='cash'?t('cash'):t('bank'))+' · '+money(E.accountBalance(f,a.id))+'</div></div>'+editBtns('account',a.id)+'</div>';})+'</div>';
+  screen(html,'home',t('account'),true);
+}
+function upsertAccount(){ var f=curFirm(); var n=val('x_name').trim(); if(!n){toast(t('reqd'));return;} var e=curEdit('account');
+  if(e){ e.name=n; if(!usedInTxns(f,e.id)) e.type=val('x_type'); e.opening=E.num(val('x_op')); EDIT_M=null; }
+  else f.accounts.push({id:E.uid('a'),name:n,type:val('x_type'),opening:E.num(val('x_op'))});
+  save(); mAccount(); }
+
+function mFirm(){ var f=curFirm();
+  var html='<div class="card">'+fld(t('farmName'),'x_name',null,f.name)+fld(t('city'),'x_city',null,f.city)+fld(t('farmer'),'x_farmer',null,f.farmer)+fld(t('mobile'),'x_mobile','tel',f.mobile)+
+   '<div style="height:10px"></div><button class="btn" onclick="saveFirmEdit()">'+esc(t('save'))+'</button></div>';
+  screen(html,'home',t('firm'),true);
+}
+function saveFirmEdit(){ var f=curFirm(); f.name=val('x_name'); f.city=val('x_city'); f.farmer=val('x_farmer'); f.mobile=val('x_mobile'); save(); toast(t('save')+' ✓'); go('reg'); }
+
+function usedInTxns(f,id){ return f.txns.some(function(x){ return x.accId===id||x.fromAccId===id||x.toAccId===id||x.partyId===id||x.vendorId===id||x.labourId===id||x.ledgerId===id; }); }
+function delMaster(kind,id){ var f=curFirm();
+  if(kind==='plot'){ if(f.sowings.some(function(s){return s.plotId===id;})){toast(t('usedWarn'));return;} }
+  if(kind==='crop'){ if(f.sowings.some(function(s){return s.cropId===id;})){toast(t('usedWarn'));return;} }
+  if((kind==='party'||kind==='ledger'||kind==='account')&&usedInTxns(f,id)){toast(t('usedWarn'));return;}
+  if(!confirm(t('delConfirm'))) return;
+  var map={plot:'plots',party:'parties',crop:'crops',ledger:'ledgers',account:'accounts'};
+  f[map[kind]]=f[map[kind]].filter(function(x){return x.id!==id;}); save();
+  ({plot:mPlot,party:mParty,crop:mCrop,ledger:mLedger,account:mAccount})[kind]();
+}
+
+/* ========================================================= SOWING (plot -> crop) */
+function scrSow(){ var f=curFirm();
+  var html='<div class="card"><div class="h2">'+esc(t('add'))+' '+esc(t('sow'))+'</div>'+
+   sel(t('plot'),'s_plot',plotOptions(f),'onchange="sowFree()"')+
+   '<small class="hint" id="freeh"></small>'+
+   sel(t('crop'),'s_crop',cropOptions(f))+
+   '<div class="grid2">'+fld(t('area'),'s_area','number')+'<div><label>'+esc(t('startDate'))+'</label>'+dateF('s_date')+'</div></div>'+
+   '<div style="height:10px"></div><button class="btn" onclick="addSow()">'+esc(t('add'))+'</button></div>'+
+   '<div class="card"><div class="h2">'+esc(t('current'))+'</div>'+masterList(E.activeSowings(f),function(s){
+     var used=sowUsed(f,s.id);
+     // ---- full edit form (only when crop has NO related entries) ----
+     if(SOW_EDIT===s.id){ var freeF=E.plotFreeArea(f,s.plotId); var maxF=E.r2(s.area+freeF);
+       return '<div class="it"><div class="main" style="flex:1"><div class="l1">'+esc(t('edit'))+' — '+esc(E.sowingLabel(f,s))+'</div>'+
+         sel(t('plot'),'se_plot',plotOptions(f,s.plotId))+ sel(t('crop'),'se_crop',cropOptions(f,s.cropId))+
+         '<div class="grid2">'+fld(t('area'),'se_area','number',s.area)+'<div><label>'+esc(t('startDate'))+'</label>'+dateF('se_date',s.startDate)+'</div></div>'+
+         '<small class="hint">'+esc(t('areaUpTo'))+' '+maxF+' ('+esc(t('freeArea'))+')</small>'+
+         '<div style="height:8px"></div><button class="btn sm" onclick="saveSowEdit(\''+s.id+'\')">'+esc(t('save'))+'</button> <button class="btn sm sec" onclick="SOW_EDIT=null;scrSow()">'+esc(t('cancel'))+'</button>'+
+         '</div></div>'; }
+     // ---- area-increase inline (allowed even when crop has entries) ----
+     if(SOW_AREA===s.id){ var free=E.plotFreeArea(f,s.plotId); var maxA=E.r2(s.area+free);
+       return '<div class="it"><div class="main" style="flex:1"><div class="l1">'+esc(t('areaInc'))+' — '+esc(E.sowingLabel(f,s))+'</div>'+
+         '<div class="l2">'+esc(t('areaUpTo'))+' '+maxA+'</div>'+
+         '<input id="sa_'+s.id+'" type="number" value="'+s.area+'" style="margin-top:6px">'+
+         '<div style="height:6px"></div><button class="btn sm" onclick="saveSowArea(\''+s.id+'\')">'+esc(t('save'))+'</button> <button class="btn sm sec" onclick="SOW_AREA=null;scrSow()">'+esc(t('cancel'))+'</button>'+
+         '</div></div>'; }
+     // ---- normal row ----
+     var btns;
+     if(used){ btns='<div class="btnrow"><span class="lockpill">'+esc(t('locked'))+'</span><button class="btn sm sec" onclick="SOW_AREA=\''+s.id+'\';scrSow()">'+esc(t('areaInc'))+'</button></div>'; }
+     else { btns='<div class="btnrow"><button class="btn sm sec" onclick="SOW_EDIT=\''+s.id+'\';scrSow()">'+esc(t('edit'))+'</button> <button class="btn sm danger" onclick="delSow(\''+s.id+'\')">'+esc(t('del'))+'</button></div>'; }
+     return '<div class="it"><div class="main"><div class="l1">'+esc(E.sowingLabel(f,s))+'</div><div class="l2">'+esc(t('cropArea'))+' '+s.area+' · '+esc(s.startDate)+'</div></div>'+btns+'</div>';})+'</div>';
+  screen(html,'home',t('sow'),true); sowFree();
+}
+var SOW_EDIT=null, SOW_AREA=null;
+function saveSowArea(id){ var f=curFirm(); var s=E.byId(f.sowings,id); if(!s)return; var nv=E.num(val('sa_'+id));
+  if(nv < s.area-0.0001){ toast(t('increaseOnly')); return; }
+  var free=E.plotFreeArea(f,s.plotId);            // free excludes this sowing's current area
+  if(nv - s.area > free+0.0001){ toast(t('areaErr')); return; }
+  s.area=nv; SOW_AREA=null; save(); toast(t('save')+' ✓'); scrSow(); }
+function saveSowEdit(id){ var f=curFirm(); var s=E.byId(f.sowings,id); if(!s)return;
+  if(sowUsed(f,s.id)){ toast(t('sowLocked')); SOW_EDIT=null; scrSow(); return; }
+  var p=val('se_plot'),c=val('se_crop'),ar=E.num(val('se_area')),dt=val('se_date');
+  if(!p||!c){toast(t('reqd'));return;}
+  // free area of target plot excluding this sowing
+  var freeOther=E.num(E.plot(f,p).size)-0; var used=0; f.sowings.forEach(function(x){ if(x.plotId===p&&!x.endDate&&x.id!==s.id) used+=x.area; }); freeOther=E.r2(E.num(E.plot(f,p).size)-used);
+  if(ar>freeOther+0.0001){ toast(t('areaErr')); return; }
+  var lastEnd=''; f.sowings.forEach(function(x){ if(x.plotId===p&&x.endDate&&x.endDate>lastEnd) lastEnd=x.endDate; });
+  if(lastEnd&&dt<lastEnd){ toast(t('dateErr')); return; }
+  s.plotId=p; s.cropId=c; s.area=ar; s.startDate=dt||today(); SOW_EDIT=null; save(); toast(t('save')+' ✓'); scrSow(); }
+function delSow(id){ var f=curFirm(); if(sowUsed(f,id)){ toast(t('sowLocked')); return; } if(!confirm(t('delConfirm'))) return; f.sowings=f.sowings.filter(function(s){return s.id!==id;}); save(); toast(t('del')+' ✓'); scrSow(); }
+function sowFree(){ var f=curFirm(); var p=val('s_plot'); var h=document.getElementById('freeh'); if(p&&h){ h.textContent=t('freeArea')+': '+E.plotFreeArea(f,p); } else if(h){ h.textContent=''; } }
+function addSow(){ var f=curFirm(); var p=val('s_plot'),c=val('s_crop'),ar=E.num(val('s_area')),dt=val('s_date');
+  if(!p||!c){toast(t('reqd'));return;}
+  if(ar>E.plotFreeArea(f,p)+0.0001){ toast(t('areaErr')); return; }
+  // date must be after last end date on this plot
+  var lastEnd=''; f.sowings.forEach(function(s){ if(s.plotId===p&&s.endDate&&s.endDate>lastEnd) lastEnd=s.endDate; });
+  if(lastEnd&&dt<lastEnd){ toast(t('dateErr')); return; }
+  f.sowings.push({id:E.uid('s'),plotId:p,cropId:c,area:ar,startDate:dt||today(),endDate:null}); save(); toast(t('save')+' ✓'); scrSow();
+}
+
+/* ========================================================= REPORTS */
+function scrReportMenu(){
+  RF={mode:'current',from:'',to:'',reload:null};
+  var g='<div class="tilegrid">'+
+    tile('r/overall',IC.report,t('overall'),'')+
+    tile('r/pnl',IC.report,t('pnl'),'')+
+    tile('r/crop',IC.sow,t('crWise'),'')+
+    tile('r/plot',IC.sow,t('plWise'),'')+
+    tile('r/income',IC.entry,t('incomeR'),'')+
+    tile('r/exp',IC.entry,t('expR'),'')+
+    tile('r/party',IC.reg,t('partyR'),'')+
+    tile('r/cash',IC.entry,t('cashbook'),'')+
+    tile('r/bank',IC.entry,t('bankbook'),'')+'</div>';
+  screen(g,'report',t('report'),true);
+}
+function pnlCard(p,title){ var prof=p.profit>=0; return '<div class="card"><div class="h2">'+esc(title||'')+'</div>'+
+  '<div class="row" style="justify-content:space-between"><span class="muted">'+esc(t('incomeR'))+'</span><b class="pos">'+money(p.income)+'</b></div>'+
+  '<div class="row" style="justify-content:space-between;margin-top:6px"><span class="muted">'+esc(t('expR'))+'</span><b class="neg">'+money(p.expense)+'</b></div>'+
+  '<hr style="border:none;border-top:1px solid var(--border);margin:8px 0">'+
+  '<div class="row" style="justify-content:space-between"><b>'+esc(prof?t('profit'):t('loss'))+'</b><b class="'+(prof?'pos':'neg')+'" style="font-size:18px">'+money(Math.abs(p.profit))+'</b></div></div>'; }
+
+/* ----- report period filter: Current crop / Last completed crop / Custom ----- */
+var RF={mode:'current',from:'',to:'',reload:null};
+function rfRange(f){
+  if(RF.mode==='custom') return {from:RF.from||null,to:RF.to||today()};
+  if(RF.mode==='last'){
+    var ended=f.sowings.filter(function(s){return s.endDate;}).sort(function(a,b){return (b.endDate||'').localeCompare(a.endDate||'');});
+    if(!ended.length) return {from:today(),to:today(),none:true,sowIds:[]};
+    var lastEnd=ended[0].endDate; var grp=ended.filter(function(s){return s.endDate===lastEnd;});
+    var froms=grp.map(function(s){return s.startDate;}).filter(Boolean).sort();
+    return {from:froms[0]||null,to:lastEnd,sowIds:grp.map(function(s){return s.id;})};
+  }
+  // current
+  var act=f.sowings.filter(function(s){return !s.endDate;});
+  var starts=act.map(function(s){return s.startDate;}).filter(Boolean).sort();
+  return {from:starts[0]||null,to:today(),sowIds:act.map(function(s){return s.id;}),current:true};
+}
+function rfSowings(f){ // which sowings to list in crop-wise for current mode
+  if(RF.mode==='current') return f.sowings.filter(function(s){return !s.endDate;});
+  if(RF.mode==='last'){ var r=rfRange(f); return f.sowings.filter(function(s){return r.sowIds.indexOf(s.id)>=0;}); }
+  var r=rfRange(f); return f.sowings.filter(function(s){ var okF=!r.to||(s.startDate<=r.to); var okT=!r.from||(!s.endDate||s.endDate>=r.from); return okF&&okT; });
+}
+function reportBar(){
+  var m=RF.mode; var r=rfRange(curFirm());
+  var seg='<div class="seg"><button type="button" class="'+(m==='current'?'on':'')+'" onclick="rfSet(\'current\')">'+esc(t('fCurrent'))+'</button>'+
+    '<button type="button" class="'+(m==='last'?'on':'')+'" onclick="rfSet(\'last\')">'+esc(t('fLast'))+'</button>'+
+    '<button type="button" class="'+(m==='custom'?'on':'')+'" onclick="rfSet(\'custom\')">'+esc(t('fCustom'))+'</button></div>';
+  var cust = m==='custom' ? '<div class="grid2" style="margin-top:8px"><div><label>'+esc(t('from'))+'</label><input id="rf_from" type="date" value="'+esc(RF.from||'')+'"></div><div><label>'+esc(t('to'))+'</label><input id="rf_to" type="date" value="'+esc(RF.to||today())+'"></div></div><button class="btn sm" style="margin-top:8px" onclick="rfApply()">'+esc(t('ok'))+'</button>' : '';
+  var rng = (m!=='custom') ? '<small class="hint">'+esc((r.from||'…')+'  →  '+(r.to||today()))+(r.none?' ('+esc(t('noCompleted'))+')':'')+'</small>' : '';
+  return '<div class="card"><label>'+esc(t('period'))+'</label>'+seg+cust+rng+'</div>';
+}
+function rfSet(m){ RF.mode=m; if(m==='custom'&&!RF.to) RF.to=today(); if(RF.reload) RF.reload(); }
+function rfApply(){ RF.from=val('rf_from'); RF.to=val('rf_to'); if(RF.reload) RF.reload(); }
+// aggregate P&L for the selected period (current = active crops only; last = that crop; custom = date range over all)
+function rangePnl(f){ var r=rfRange(f); var inc=0,exp=0,o;
+  if(RF.mode==='custom'){ f.sowings.forEach(function(s){var p=E.sowingPnl(f,s.id,r.from,r.to);inc+=p.income;exp+=p.expense;}); o=E.otherPnl(f,r.from,r.to); }
+  else { (r.sowIds||[]).forEach(function(id){var p=E.sowingPnl(f,id,r.from,r.to);inc+=p.income;exp+=p.expense;}); o=(RF.mode==='current')?E.otherPnl(f,r.from,r.to):{income:0,expense:0,profit:0}; }
+  inc+=o.income; exp+=o.expense;
+  return {income:E.r2(inc),expense:E.r2(exp),profit:E.r2(inc-exp),other:o};
+}
+// build a pnlEntries/openLotRows filter for the selected period
+function rfFilter(f,extra){ var r=rfRange(f); var base;
+  if(RF.mode==='custom') base={from:r.from,to:r.to};
+  else base={sowIds:r.sowIds,includeOther:(RF.mode==='current'),from:r.from,to:r.to};
+  if(extra){ for(var k in extra){ if(extra.hasOwnProperty(k)) base[k]=extra[k]; } }
+  return base;
+}
+// slice chronological ledger rows (index0 = opening) to [from,to], carrying correct opening balance
+function sliceLedger(rows,from,to){ var opening=rows.length?rows[0].bal:0; var out=[];
+  for(var i=1;i<rows.length;i++){ var r=rows[i]; if(from&&r.date<from){ opening=r.bal; continue; } if(to&&r.date>to) continue; out.push(r); }
+  return {opening:E.r2(opening),rows:out};
+}
+
+/* ----- shared details helpers (drill-down) ----- */
+function tgl(id,el){ var d=document.getElementById(id); if(!d)return; var open=d.style.display==='none'; d.style.display=open?'':'none'; var c=el&&el.querySelector&&el.querySelector('.caret'); if(c)c.className='caret'+(open?' open':''); }
+function headNm(f,key){ if(key==='(leftover)') return t('leftoverH'); var lg=E.ledger(f,key); return lg?lg.name:(key||'—'); }
+function caretSvg(){ return '<svg class="caret" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>'; }
+// render pnl entry rows (from E.pnlEntries). estRows (open-lot provisional) appended for income.
+function detList(f,rows,showCrop,estRows){
+  if((!rows||!rows.length)&&(!estRows||!estRows.length)) return '<div class="muted" style="padding:8px 0">'+esc(t('noEntry'))+'</div>';
+  var h='<div class="det">';
+  (rows||[]).forEach(function(r){
+    var qr=(r.qty||r.rate)?(E.r2(r.qty)+' × '+E.r2(r.rate)):'';
+    var l2=[r.date,(showCrop&&r.crop?r.crop:''),qr,(r.remark||'')].filter(Boolean).join(' · ');
+    h+='<div class="dit"><div class="dm"><div class="d1">'+esc(headNm(f,r.headKey))+(r.whole?' ('+esc(t('whole'))+')':'')+'</div><div class="d2">'+esc(l2)+'</div></div><div class="da '+(r.kind==='income'?'pos':'neg')+'">'+(r.kind==='income'?'':'-')+money(r.amount)+'</div></div>';
+  });
+  (estRows||[]).forEach(function(r){
+    h+='<div class="dit"><div class="dm"><div class="d1">'+esc(t('stockEst'))+'</div><div class="d2">'+esc([r.crop,(r.name||''),(r.qty?r.qty+' '+t('remainLot'):'')].filter(Boolean).join(' · '))+'</div></div><div class="da pos">'+money(r.amount)+'</div></div>';
+  });
+  return h+'</div>';
+}
+function detBlock(f,id,label,rows,showCrop,estRows){
+  return '<div class="card"><div class="exphead" onclick="tgl(\''+id+'\',this)"><span class="cv">'+caretSvg()+'<b>'+esc(label)+'</b></span><span class="muted">'+esc(t('details'))+'</span></div><div id="'+id+'" style="display:none;margin-top:8px">'+detList(f,rows,showCrop,estRows)+'</div></div>';
+}
+
+function rOverall(){ RF.reload=rOverall; var f=curFirm(); var p=rangePnl(f);
+  var inc=E.pnlEntries(f,rfFilter(f,{kind:'income'})), exp=E.pnlEntries(f,rfFilter(f,{kind:'exp'})), est=E.openLotRows(f,rfFilter(f,{}));
+  var html=reportBar()+pnlCard(p,t('overall'))+
+    detBlock(f,'ov_inc',t('incomeR')+' — '+money(p.income),inc,true,est)+
+    detBlock(f,'ov_exp',t('expR')+' — '+money(p.expense),exp,true,null)+
+    pnlCard(p.other,t('other'));
+  screen(html,'report',t('overall'),true);
+}
+
+function rCrop(){ RF.reload=rCrop; var f=curFirm(); var r=rfRange(f); var list=rfSowings(f);
+  var html=reportBar()+'<div class="card"><div class="list">';
+  if(!list.length) html+='<div class="muted">'+esc(t('nothingHere'))+'</div>';
+  list.forEach(function(s){ var p=E.sowingPnl(f,s.id,r.from,r.to); html+='<div class="it" onclick="cropDetail(\''+s.id+'\')" style="cursor:pointer"><div class="main"><div class="l1">'+esc(E.sowingLabel(f,s))+(s.endDate?' <span class="lockpill">'+esc(s.endDate)+'</span>':'')+'</div><div class="l2">'+esc(t('incomeR'))+' '+money(p.income)+' · '+esc(t('expR'))+' '+money(p.expense)+'</div></div><div class="amt '+(p.profit>=0?'pos':'neg')+'">'+money(p.profit)+'</div></div>'; });
+  html+='</div></div>';
+  screen(html,'report',t('crWise'),true);
+}
+function cropDetail(sid){ var f=curFirm(); var r=rfRange(f); var s=E.sowing(f,sid); var p=E.sowingPnl(f,sid,r.from,r.to);
+  var inc=E.pnlEntries(f,{sowingId:sid,kind:'income',from:r.from,to:r.to}), exp=E.pnlEntries(f,{sowingId:sid,kind:'exp',from:r.from,to:r.to}), est=(RF.mode==='current')?E.openLotRows(f,{sowingId:sid}):[];
+  var html=pnlCard(p,E.sowingLabel(f,s))+
+    '<div class="card"><div class="h2">'+esc(t('incomeR'))+'</div>'+detList(f,inc,false,est)+'</div>'+
+    '<div class="card"><div class="h2">'+esc(t('expR'))+'</div>'+detList(f,exp,false,null)+'</div>';
+  screen(html,'report',t('details'),true);
+}
+
+function rPlot(){ RF.reload=rPlot; var f=curFirm(); var r=rfRange(f);
+  var html=reportBar()+'<div class="card"><div class="list">';
+  if(!f.plots.length) html+='<div class="muted">'+esc(t('nothingHere'))+'</div>';
+  f.plots.forEach(function(pl){ var p=E.plotPnl(f,pl.id,r.from,r.to); html+='<div class="it" onclick="plotDetail(\''+pl.id+'\')" style="cursor:pointer"><div class="main"><div class="l1">'+esc(pl.name)+'</div><div class="l2">'+esc(t('incomeR'))+' '+money(p.income)+' · '+esc(t('expR'))+' '+money(p.expense)+'</div></div><div class="amt '+(p.profit>=0?'pos':'neg')+'">'+money(p.profit)+'</div></div>'; });
+  html+='</div></div>';
+  screen(html,'report',t('plWise'),true);
+}
+function plotDetail(plid){ var f=curFirm(); var r=rfRange(f); var pl=E.plot(f,plid); var p=E.plotPnl(f,plid,r.from,r.to);
+  var inc=E.pnlEntries(f,{plotId:plid,kind:'income',from:r.from,to:r.to}), exp=E.pnlEntries(f,{plotId:plid,kind:'exp',from:r.from,to:r.to}), est=(RF.mode==='current')?E.openLotRows(f,{plotId:plid}):[];
+  var html=pnlCard(p,(pl?pl.name:''))+
+    '<div class="card"><div class="h2">'+esc(t('incomeR'))+'</div>'+detList(f,inc,true,est)+'</div>'+
+    '<div class="card"><div class="h2">'+esc(t('expR'))+'</div>'+detList(f,exp,true,null)+'</div>';
+  screen(html,'report',t('plWise'),true);
+}
+
+function rIncome(){ ieReport('income',t('incomeR')); }
+function rExp(){ ieReport('exp',t('expR')); }
+function ieReport(kind,title){ RF.reload=(kind==='income'?rIncome:rExp); var f=curFirm(); var rows=E.pnlEntries(f,rfFilter(f,{kind:kind}));
+  // group by head
+  var groups={}; var order=[];
+  rows.forEach(function(r){ var k=r.headKey||'—'; if(!groups[k]){groups[k]=[];order.push(k);} groups[k].push(r); });
+  var est=(kind==='income')?E.openLotRows(f,rfFilter(f,{})):[];
+  var bar=reportBar();
+  var total=0; rows.forEach(function(r){total+=r.amount;}); est.forEach(function(r){total+=r.amount;});
+  order.sort(function(a,b){ var sa=groups[a].reduce(function(x,y){return x+y.amount;},0); var sb=groups[b].reduce(function(x,y){return x+y.amount;},0); return sb-sa; });
+  var html=bar;
+  order.forEach(function(k,i){ var sum=groups[k].reduce(function(x,y){return x+y.amount;},0);
+    html+='<div class="card"><div class="exphead" onclick="tgl(\'ie'+i+'\',this)"><span class="cv">'+caretSvg()+'<b>'+esc(headNm(f,k))+'</b></span><b class="'+(kind==='income'?'pos':'neg')+'">'+money(sum)+'</b></div><div id="ie'+i+'" style="display:none;margin-top:8px">'+detList(f,groups[k],true,null)+'</div></div>'; });
+  if(est.length){ var es=est.reduce(function(x,y){return x+y.amount;},0); html+='<div class="card"><div class="exphead" onclick="tgl(\'ieest\',this)"><span class="cv">'+caretSvg()+'<b>'+esc(t('stockEst'))+'</b></span><b class="pos">'+money(es)+'</b></div><div id="ieest" style="display:none;margin-top:8px">'+detList(f,[],true,est)+'</div></div>'; }
+  if(!order.length&&!est.length) html+='<div class="card muted">'+esc(t('noEntry'))+'</div>';
+  html+='<div class="card"><div class="row" style="justify-content:space-between"><b>'+esc(t('total'))+'</b><b class="'+(kind==='income'?'pos':'neg')+'" style="font-size:17px">'+money(total)+'</b></div></div>';
+  screen(html,'report',title,true);
+}
+
+function rParty(){ RF.reload=rParty; var f=curFirm(); var r=rfRange(f);
+  var html=reportBar()+'<div class="card"><div class="list">';
+  if(!f.parties.length) html+='<div class="muted">'+esc(t('nothingHere'))+'</div>';
+  f.parties.forEach(function(p){ var b=E.partyBalance(f,p.id,r.to); html+='<div class="it" onclick="partyDetail(\''+p.id+'\')" style="cursor:pointer"><div class="main"><div class="l1">'+esc(p.name)+' <span class="pill">'+esc(p.type==='vendor'?t('vendor'):t('labour'))+'</span></div><div class="l2">'+(b>0?esc(t('youOwe')):(b<0?esc(t('owesYou')):esc(t('settled'))))+' ('+esc(t('asOn'))+' '+esc(r.to||today())+')</div></div><div class="amt '+(b>0?'neg':'pos')+'">'+money(Math.abs(b))+'</div></div>'; });
+  html+='</div></div>';
+  screen(html,'report',t('partyR'),true);
+}
+function partyDetail(pid){ var f=curFirm(); var r=rfRange(f); var all=E.partyLedger(f,pid); var sl=sliceLedger(all,r.from,r.to); var p=E.party(f,pid);
+  var h=reportBar()+'<div class="card"><div class="h2">'+esc((p||{}).name)+' <span class="pill">'+esc((p&&p.type==='vendor')?t('vendor'):t('labour'))+'</span></div>'+
+   '<table><tr><th>'+esc(t('date'))+'</th><th>'+esc(t('remark'))+'</th><th class="r">'+esc(t('amount'))+'</th><th class="r">'+esc(t('balance'))+'</th></tr>'+
+   '<tr><td></td><td>'+esc(t('openingBal'))+'</td><td class="r"></td><td class="r"><b>'+money(sl.opening)+'</b></td></tr>';
+  sl.rows.forEach(function(r2){ var ch=(r2.credit||0)-(r2.debit||0); var chTxt=(ch>0?'+':(ch<0?'-':''))+money(Math.abs(ch)); h+='<tr><td>'+esc(r2.date||'')+'</td><td>'+esc(r2.desc)+'</td><td class="r '+(ch>0?'neg':(ch<0?'pos':''))+'">'+chTxt+'</td><td class="r"><b>'+money(r2.bal)+'</b></td></tr>'; });
+  if(!sl.rows.length) h+='<tr><td colspan="4" class="muted">'+esc(t('noEntry'))+'</td></tr>';
+  h+='</table><small class="hint" style="margin-top:8px">+ = '+esc(t('youOwe'))+', − = '+esc(t('owesYou'))+' / '+esc(t('payment'))+'</small></div>';
+  RF.reload=function(){ partyDetail(pid); };
+  screen(h,'report',t('partyR'),true);
+}
+
+function rBook(type){ RF.reload=function(){ rBook(type); }; var f=curFirm(); var acc=f.accounts.filter(function(a){return a.type===type;})[0];
+  if(!acc){ screen('<div class="card">'+esc(t('nothingHere'))+'</div>','report',type,true); return; }
+  var r=rfRange(f); var all=E.accountBook(f,acc.id); var sl=sliceLedger(all,r.from,r.to);
+  var h=reportBar()+'<div class="card"><div class="h2">'+esc(acc.name)+' · '+money(E.accountBalance(f,acc.id,r.to))+' <span class="muted" style="font-weight:400">('+esc(t('asOn'))+' '+esc(r.to||today())+')</span></div>'+
+   '<table><tr><th>'+esc(t('date'))+'</th><th>'+esc(t('remark'))+'</th><th class="r">'+esc(t('moneyIn'))+'</th><th class="r">'+esc(t('moneyOut'))+'</th><th class="r">'+esc(t('balance'))+'</th></tr>'+
+   '<tr><td></td><td>'+esc(t('openingBal'))+'</td><td class="r"></td><td class="r"></td><td class="r"><b>'+money(sl.opening)+'</b></td></tr>';
+  sl.rows.slice().reverse().forEach(function(r2){ h+='<tr><td>'+esc(r2.date||'')+'</td><td>'+esc(r2.desc)+'</td><td class="r pos">'+(r2.inAmt?money(r2.inAmt):'')+'</td><td class="r neg">'+(r2.outAmt?money(r2.outAmt):'')+'</td><td class="r"><b>'+money(r2.bal)+'</b></td></tr>'; });
+  if(!sl.rows.length) h+='<tr><td colspan="5" class="muted">'+esc(t('noEntry'))+'</td></tr>';
+  h+='</table></div>';
+  screen(h,'report',type==='cash'?t('cashbook'):t('bankbook'),true);
+}
+
+/* ---------- P&L with custom date/plot/crop ---------- */
+function rPnl(){ var f=curFirm();
+  var html='<div class="card"><div class="h2">'+esc(t('custom'))+'</div>'+
+   '<div class="grid2"><div><label>'+esc(t('from'))+'</label>'+dateF('pl_from','')+'</div><div><label>'+esc(t('to'))+'</label>'+dateF('pl_to',today())+'</div></div>'+
+   sel(t('plot'),'pl_plot',plotOptions(f))+ sel(t('crop'),'pl_crop',cropOptions(f))+
+   '<div style="height:10px"></div><button class="btn" onclick="runPnl()">'+esc(t('pnl'))+'</button></div>'+
+   '<div id="plres">'+pnlCard(E.overallPnl(f),t('overall')+' ('+t('current')+')')+'</div>';
+  screen(html,'report',t('pnl'),true);
+  document.getElementById('pl_from').value='';
+}
+function runPnl(){ var f=curFirm(); var from=val('pl_from'),to=val('pl_to'),pl=val('pl_plot'),cr=val('pl_crop');
+  var box=document.getElementById('plres');
+  // validation: if plot+crop chosen, ensure that crop was on that plot in range
+  if(pl&&cr){
+    var found=f.sowings.filter(function(s){return s.plotId===pl&&s.cropId===cr;});
+    var inRange=found.some(function(s){ var okF=!to||s.startDate<=to; var okT=!from||(!s.endDate||s.endDate>=from); return okF&&okT; });
+    if(!inRange){
+      var alt=E.findCropPlots(f,cr,from,to).map(function(s){return (E.plot(f,s.plotId)||{}).name;}).filter(function(v,i,a){return a.indexOf(v)===i;});
+      box.innerHTML='<div class="err">'+esc(T[DB.settings.lang].custom? '' : '')+esc(t('dateErr').replace(t('dateErr'),''))+esc((DB.settings.lang==='hi'?'यह फसल इस प्लॉट पर इस तारीख में नहीं थी।':'This crop was not on this plot in this date range.'))+(alt.length?' '+(DB.settings.lang==='hi'?'सही प्लॉट: ':'Try plot: ')+esc(alt.join(', ')):'')+'</div>';
+      return;
+    }
+  }
+  var inc=0,exp=0;
+  f.sowings.forEach(function(s){ if(pl&&s.plotId!==pl) return; if(cr&&s.cropId!==cr) return; var p=E.sowingPnl(f,s.id,from||null,to||null); inc+=p.income; exp+=p.expense; });
+  if(!pl&&!cr){ var o=E.otherPnl(f,from||null,to||null); inc+=o.income; exp+=o.expense; }
+  var p={income:E.r2(inc),expense:E.r2(exp),profit:E.r2(inc-exp)};
+  box.innerHTML=pnlCard(p,t('pnl'));
+}
+
+/* ========================================================= BACKUP */
+function scrBackup(){
+  var html='<div class="card"><button class="btn" onclick="exportBackup()">'+esc(t('exportB'))+'</button>'+
+   '<div style="height:10px"></div><label class="btn sec" style="cursor:pointer;display:block;text-align:center">'+esc(t('importB'))+
+   '<input type="file" accept="application/json,.json" style="display:none" onchange="importBackup(this)"></label>'+
+   '<small class="hint" style="margin-top:12px">'+esc(DB.settings.lang==='hi'?'बैकअप में सभी फर्म, एंट्री, मास्टर और सेटिंग जाती हैं। फाइल Downloads में date के नाम से बनेगी।':'Backup includes all firms, entries, masters and settings. File saved to Downloads with the date.')+'</small></div>';
+  screen(html,'backup',t('backup'),true);
+}
+function fileDownload(data,fn){
+  try{ var blob=new Blob([data],{type:'application/json'}); var url=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=url; a.download=fn; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },500); }catch(e){}
+}
+function exportBackup(){
+  var data=JSON.stringify(DB);
+  var fn='FarmBackup_'+today()+'.json';
+  var mark=function(){ DB.settings.lastBackup=today(); save(); toast(t('save')+' ✓'); };
+  // Android APK (WebView) bridge -> saves to phone Downloads
+  if(window.AndroidBridge && typeof window.AndroidBridge.saveBackup==='function'){ try{ window.AndroidBridge.saveBackup(fn,data); mark(); return; }catch(e){} }
+  if(window.claude && typeof window.claude.use==='function'){
+    window.claude.use('downloads').then(function(dl){
+      if(dl && dl.save){ dl.save({filename:fn,data:data}).then(mark).catch(function(err){ if(!(err&&err.code==='declined')) toast('—'); }); }
+      else { fileDownload(data,fn); mark(); }
+    }).catch(function(){ fileDownload(data,fn); mark(); });
+  } else { fileDownload(data,fn); mark(); }
+}
+function importBackup(inp){
+  var file=inp.files[0]; if(!file) return; var rd=new FileReader();
+  rd.onload=function(){ try{ var d=JSON.parse(rd.result); if(!d.firms){ toast('Invalid'); return; } if(!confirm(t('importB')+' ?')) return; DB=d; if(!DB.settings)DB.settings={lang:'hi',theme:'harit'}; save(); window._unlocked=true; toast(t('ok')+' ✓'); go('home'); route(); }catch(e){ toast('Error'); } };
+  rd.readAsText(file);
+}
+
+/* ========================================================= SETTINGS */
+var THEME_SW={harit:['#227745','#3fa368'],mitti:['#8a5a2b','#b07b45'],gehu:['#a9791a','#d6a93a'],aasman:['#1f6f9e','#4aa0cf'],raat:['#1e2a24','#3fa368'],fasal:['#c76b1f','#e79050'],nadi:['#13857f','#3bb3ab']};
+function scrSettings(){
+  var themes=[['harit','हरित / Green'],['mitti','मिट्टी / Soil'],['gehu','गेहूं / Wheat'],['aasman','आसमान / Sky'],['fasal',t('themeFasal')],['nadi',t('themeNadi')],['raat','रात / Dark']];
+  var curTh=DB.settings.theme||'harit';
+  var sw=themes.map(function(x){ var c=THEME_SW[x[0]]||['#888','#aaa']; return '<div class="sw'+(curTh===x[0]?' on':'')+'" style="--sc1:'+c[0]+';--sc2:'+c[1]+'" onclick="setTheme(\''+x[0]+'\')"><div class="dot"></div>'+esc(x[1])+'</div>'; }).join('');
+  var bgs=[['tractor',t('bgTractor')],['harvest',t('bgHarvest')],['sunrise',t('bgSunrise')],['night',t('bgNight')],['plain',t('bgPlain')]];
+  var curBg=DB.settings.bg||'tractor';
+  var bgCards=bgs.map(function(x){ var prev=bgPrevStyle(x[0]); return '<div class="bgo'+(curBg===x[0]?' on':'')+'" onclick="setBg(\''+x[0]+'\')"><div class="prev" style="'+prev+'"></div><div class="lab">'+esc(x[1])+'</div></div>'; }).join('');
+  // custom photo card
+  var customPrev=(DB.settings.bgImage?('background-image:url('+DB.settings.bgImage+')'):'background:var(--chip)');
+  bgCards+='<div class="bgo'+(curBg==='custom'?' on':'')+'"><div class="prev" style="'+customPrev+'" onclick="'+(DB.settings.bgImage?'setBg(\'custom\')':'document.getElementById(\'bgfile\').click()')+'"></div><div class="lab">'+esc(t('bgCustom'))+'</div></div>';
+  var html='<div class="card">'+
+   sel(t('language'),'st_lang','<option value="hi"'+(DB.settings.lang==='hi'?' selected':'')+'>हिंदी</option><option value="en"'+(DB.settings.lang==='en'?' selected':'')+'>English</option>','onchange="setLang(this.value)"')+
+   '<label style="margin-top:12px">'+esc(t('theme'))+'</label><div class="swatches">'+sw+'</div>'+
+   '</div>'+
+   '<div class="card"><div class="h2">'+esc(t('background'))+'</div><div class="bgopt">'+bgCards+'</div>'+
+   '<input type="file" id="bgfile" accept="image/*" style="display:none" onchange="uploadBg(this)">'+
+   '<div style="height:10px"></div><button class="btn sec" onclick="document.getElementById(\'bgfile\').click()">'+esc(t('uploadImg'))+'</button></div>'+
+   '<div class="card"><div class="h2">'+esc(t('pin'))+'</div>'+fld(t('setPin'),'st_pin','password',DB.settings.pin||'','inputmode="numeric"')+
+   '<div style="height:10px"></div><button class="btn sec" onclick="savePin()">'+esc(t('save'))+'</button></div>'+
+   '<div class="card"><button class="btn sec" onclick="go(\'firms\')">'+esc(t('selFirm'))+'</button></div>';
+  screen(html,'settings',t('setting'),true);
+}
+function bgPrevStyle(name){ // small inline SVG preview as data-uri-ish via gradient fallback
+  var g={tractor:'linear-gradient(#bfe3f6,#8ac06a 60%,#9a6a3a)',harvest:'linear-gradient(#9fd0ef,#e9c24d 55%)',sunrise:'linear-gradient(#ffd79b,#ffc17a 50%,#7bbf5e)',night:'linear-gradient(#16233a,#13331f 60%)',plain:'var(--chip)'};
+  return 'background:'+(g[name]||'var(--chip)')+';';
+}
+function setLang(l){ DB.settings.lang=l; save(); applyTheme(); scrSettings(); }
+function setTheme(th){ DB.settings.theme=th; save(); applyTheme(); scrSettings(); }
+function setBg(b){ DB.settings.bg=b; save(); applyTheme(); scrSettings(); }
+function uploadBg(inp){ var file=inp.files&&inp.files[0]; if(!file) return;
+  if(file.size>2.5*1024*1024){ toast(t('imgBig')); inp.value=''; return; }
+  var rd=new FileReader(); rd.onload=function(){ try{ DB.settings.bgImage=rd.result; DB.settings.bg='custom'; save(); applyTheme(); scrSettings(); toast(t('save')+' ✓'); }catch(e){ toast('—'); } }; rd.readAsDataURL(file);
+}
+function savePin(){ var p=val('st_pin').trim(); DB.settings.pin=p||null; save(); toast(t('save')+' ✓'); }
+
+/* ========================================================= FIRMS */
+function scrFirms(){
+  var html='<div class="card"><div class="list">';
+  DB.firms.forEach(function(f){ html+='<div class="it"><div class="main"><div class="l1">'+esc(f.name)+(f.id===DB.activeFirmId?' <span class="pill">●</span>':'')+'</div><div class="l2">'+esc(f.city||'')+'</div></div><button class="btn sm" onclick="pickFirm(\''+f.id+'\')">'+esc(t('ok'))+'</button></div>'; });
+  html+='</div></div><button class="btn" onclick="newFirm()">'+esc(t('add'))+' '+esc(t('firm'))+'</button>';
+  screen(html,'home',t('selFirm'),true);
+}
+function pickFirm(id){ DB.activeFirmId=id; save(); go('home'); route(); }
+function newFirm(){ FR.step=1; FR.plots=1; DB.firms=DB.firms; // keep; show create but keep existing
+  // temporarily reuse first-run create screen
+  firstRunCreate();
+}
+function firstRunCreate(){
+  screen('<div class="card"><div class="h2">'+esc(t('createFirm'))+'</div>'+
+   fld(t('farmName'),'f_name')+ fld(t('city'),'f_city')+ fld(t('farmer'),'f_farmer')+ fld(t('mobile'),'f_mobile','tel')+
+   '<div class="grid2">'+fld(t('openCash'),'f_oc','number',0)+fld(t('openBank'),'f_ob','number',0)+'</div>'+
+   '<small class="hint">'+esc(DB.settings.lang==='hi'?'प्लॉट/खेत बाद में Registration में जोड़ें।':'Add plots later in Registration.')+'</small>'+
+   '<div style="height:12px"></div><button class="btn" onclick="saveFirstFirm()">'+esc(t('save'))+'</button></div>', null, t('firm'), true);
+}
+
+/* ========================================================= START */
+load(); applyTheme(); route();
+
+</script>
+</body>
+</html>
