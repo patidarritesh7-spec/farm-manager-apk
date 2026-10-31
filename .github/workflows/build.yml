@@ -4,6 +4,9 @@ on:
   push:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,15 +25,23 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Show Android SDK location
-        run: echo "ANDROID_HOME=$ANDROID_HOME ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-
       - name: Build debug APK
         run: gradle assembleDebug --no-daemon --stacktrace
 
-      - name: Upload APK
+      - name: Rename APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk kisan-farm.apk
+
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: FarmManager-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: kisan-farm.apk
           if-no-files-found: error
+
+      - name: Publish to Release (easy download)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1
+          name: Kisan Farm APK
+          body: "Install on Android 10+. Allow 'install from unknown apps' when asked."
+          files: kisan-farm.apk
