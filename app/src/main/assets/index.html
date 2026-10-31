@@ -565,7 +565,9 @@ function load(){
   if(!DB.settings) DB.settings={lang:'hi',theme:'harit',bg:'tractor',pin:null,lastBackup:null};
   if(!DB.settings.bg) DB.settings.bg='tractor';
 }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){ toast('Storage error'); } }
+function save(){ var j; try{ j=JSON.stringify(DB); localStorage.setItem(KEY, j); }catch(e){ toast('Storage error'); }
+  // APK: mirror to visible phone folder Documents/KisanFarm/farmdata.json
+  try{ if(window.AndroidBridge && typeof AndroidBridge.saveData==='function'){ AndroidBridge.saveData(j||JSON.stringify(DB)); } }catch(e){} }
 function curFirm(){ return (DB.firms||[]).filter(function(f){return f.id===DB.activeFirmId;})[0]||null; }
 
 /* ============ helpers ============ */
@@ -1597,6 +1599,12 @@ function firstRunCreate(){
 }
 
 /* ========================================================= START */
+// APK bootstrap: prefer data from the visible phone folder (Documents/KisanFarm); migrate existing data into it
+(function(){ try{ if(window.AndroidBridge && typeof AndroidBridge.loadData==='function'){
+  var nd=AndroidBridge.loadData();
+  if(nd && nd.length>2){ try{ localStorage.setItem('farmapp_v1', nd); }catch(e){} }
+  else { var ex=null; try{ ex=localStorage.getItem('farmapp_v1'); }catch(e){} if(ex && typeof AndroidBridge.saveData==='function'){ AndroidBridge.saveData(ex); } }
+} }catch(e){} })();
 load(); applyTheme(); route();
 
 </script>

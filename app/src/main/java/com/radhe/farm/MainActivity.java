@@ -1,8 +1,10 @@
 package com.radhe.farm;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +17,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 public class MainActivity extends Activity {
@@ -80,7 +84,69 @@ public class MainActivity extends Activity {
         }
     }
 
+    // ----- live data store in a VISIBLE phone folder: Documents/KisanFarm/farmdata.json -----
+    private static final String DATA_DIR = Environment.DIRECTORY_DOCUMENTS + "/KisanFarm";
+    private static final String DATA_FILE = "farmdata.json";
+
+    private Uri findDataUri() {
+        Uri coll = MediaStore.Files.getContentUri("external");
+        String sel = MediaStore.MediaColumns.DISPLAY_NAME + "=? AND " + MediaStore.MediaColumns.RELATIVE_PATH + "=?";
+        String[] args = new String[]{ DATA_FILE, DATA_DIR + "/" };
+        Cursor c = null;
+        try {
+            c = getContentResolver().query(coll, new String[]{ MediaStore.MediaColumns._ID }, sel, args, null);
+            if (c != null && c.moveToFirst()) {
+                long id = c.getLong(0);
+                return ContentUris.withAppendedId(coll, id);
+            }
+        } catch (Exception e) {
+            // ignore
+        } finally {
+            if (c != null) c.close();
+        }
+        return null;
+    }
+
     public class Bridge {
+        @JavascriptInterface
+        public String loadData() {
+            try {
+                Uri uri = findDataUri();
+                if (uri == null) return "";
+                InputStream is = getContentResolver().openInputStream(uri);
+                ByteArrayOutputStream bo = new ByteArrayOutputStream();
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = is.read(buf)) > 0) bo.write(buf, 0, n);
+                is.close();
+                return new String(bo.toByteArray(), "UTF-8");
+            } catch (Exception e) {
+                return "";
+            }
+        }
+
+        @JavascriptInterface
+        public void saveData(final String content) {
+            try {
+                Uri uri = findDataUri();
+                if (uri == null) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(MediaStore.MediaColumns.DISPLAY_NAME, DATA_FILE);
+                    cv.put(MediaStore.MediaColumns.MIME_TYPE, "application/json");
+                    cv.put(MediaStore.MediaColumns.RELATIVE_PATH, DATA_DIR);
+                    uri = getContentResolver().insert(MediaStore.Files.getContentUri("external"), cv);
+                }
+                if (uri != null) {
+                    OutputStream os = getContentResolver().openOutputStream(uri, "rwt");
+                    os.write(content.getBytes("UTF-8"));
+                    os.flush();
+                    os.close();
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+
         @JavascriptInterface
         public void saveBackup(final String name, final String content) {
             String msg;
