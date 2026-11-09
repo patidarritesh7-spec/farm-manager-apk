@@ -29,19 +29,19 @@ jobs:
         run: gradle assembleDebug --no-daemon --stacktrace
 
       - name: Rename APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk kisan-farm.apk
+        run: cp app/build/outputs/apk/debug/app-debug.apk kisan-bahi-book.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: FarmManager-APK
-          path: kisan-farm.apk
+          name: KisanBahiBook-APK
+          path: kisan-bahi-book.apk
           if-no-files-found: error
 
       - name: Publish to Release (easy download)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1
-          name: Kisan Farm APK
+          name: Kisan Bahi-Book APK
           body: "Install on Android 10+. Allow 'install from unknown apps' when asked."
-          files: kisan-farm.apk
+          files: kisan-bahi-book.apk

@@ -10,13 +10,27 @@ android {
         applicationId "com.radhe.farm"
         minSdk 29
         targetSdk 34
-        versionCode 2
-        versionName "1.1"
+        versionCode 3
+        versionName "1.2"
+    }
+
+    // Fixed signing key: har naya APK purane ke upar update ho sake (data delete nahi hoga)
+    signingConfigs {
+        farm {
+            storeFile file('farm-release.jks')
+            storePassword 'kisanfarm'
+            keyAlias 'farm'
+            keyPassword 'kisanfarm'
+        }
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.farm
+        }
         release {
             minifyEnabled false
+            signingConfig signingConfigs.farm
         }
     }
 
