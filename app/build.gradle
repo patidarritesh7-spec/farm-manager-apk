@@ -10,8 +10,8 @@ android {
         applicationId "com.radhe.farm"
         minSdk 29
         targetSdk 34
-        versionCode 3
-        versionName "1.2"
+        versionCode 4
+        versionName "1.3"
     }
 
     // Fixed signing key: har naya APK purane ke upar update ho sake (data delete nahi hoga)
